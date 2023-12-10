@@ -8,8 +8,6 @@ import numpy as np
 import cv2
 
 
-
-
 def read_official_video(video_path):
     '''
     读取并播放官方app拍摄出来的视频
