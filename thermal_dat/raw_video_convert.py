@@ -15,16 +15,16 @@ from thermal_dat.utils import count_files
 height = 256
 width = 192
 
+is_rotate_clockwise = True
+
 
 def export_video(video_path, using_yuv=False):
     fps = 25  # 帧率
 
-    is_rotate = True
-
     frame_width = width  # 视频宽度
     frame_height = height  # 视频高度
 
-    if is_rotate:
+    if is_rotate_clockwise:
         frame_width = height  # 视频宽度
         frame_height = width  # 视频高度
 
@@ -56,7 +56,7 @@ def export_video(video_path, using_yuv=False):
             with open(file_path, 'rb') as file:
                 img = generate_thermal_image(file)
 
-        if is_rotate:
+        if is_rotate_clockwise:
             # 因为拍摄的时候不是竖屏，所以需要旋转
             img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
 

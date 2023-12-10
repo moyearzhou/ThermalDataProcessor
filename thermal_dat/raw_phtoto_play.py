@@ -18,95 +18,37 @@ from parse_utils import read_env_temp, read_min_temp, read_max_temp, read_averag
 height = 256
 width = 192
 
-FILE_STREAM = ""
+cur_file_path = ""
 
+is_rotate_clockwise = True
 
-# def show_img(title, img):
-#     cv2.imshow(title, img)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
+scale = 4
 
-
-# def show_img_rgb(title, img):
-#     # 将rgb图像转换为bgr图像，才能用open cv正常显示
-#     img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-#     # 显示图像
-#     show_img(title, img_bgr)
-
-
-# def display_images(images):
-#     res = np.hstack(images)
-#     cv2.imshow("title", res)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
-
-
-# def show_image_in_gallery(img):
-#     # 转换为PIL图像对象并显示图像
-#     image = Image.fromarray(img.astype(np.uint8))
-#     image.show()
+# 视频播放帧率
+fps = 25
 
 
 # 定义鼠标事件回调函数
 def mouse_callback(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
-        # 读取温度数据
-        pos = 4640 + (192 * y + x) * 2
-        # pos = x * y * 2
-        FILE_STREAM.seek(pos)
-        byte_array = FILE_STREAM.read(2)
-        # 解析温度数据
-        temp = parse_real_temp(byte_array)
-        print("点击坐标：", x, y, "温度：", temp)
+        with open(cur_file_path, 'rb') as file_stream_data:
 
+            real_x = int(x / scale)
+            real_y = int(y / scale)
 
-def open_stream_file():
-    with open('res/stream.dat', 'rb') as file_stream_data:
-        global FILE_STREAM
-        FILE_STREAM = file_stream_data
-        byte_stream = io.BytesIO(file_stream_data.read())
-        byte_data = byte_stream.read()
+            # 逆时针
+            if is_rotate_clockwise:
+                real_x = width - int(y / scale)
+                real_y = int(x / scale)
 
-        print("==============读取全局温度数据概况=================")
-        # env 温度
-        read_env_temp(file_stream_data)
-        # min 温度
-        read_min_temp(file_stream_data)
-        # max 温度
-        read_max_temp(file_stream_data)
-        # avg 温度
-        read_average_temp(file_stream_data)
-
-        # yuv_bytes = read_yuv_bytes(file_stream_data)
-
-        # 读取实时温度数据
-        file_stream_data.seek(4640)
-        yuv_bytes = file_stream_data.read(98304)
-        img_test = yuv_2_rgb_2(yuv_bytes)
-
-        # 读取yuv温度图像数据
-        print("yuv数据长度：{0}".format(len(byte_data) - 98304))
-        file_stream_data.seek(len(byte_data) - 98304)
-        yuv_bytes = file_stream_data.read(98304)
-        rgb = yuv_2_rgb_2(yuv_bytes)
-
-        # 生成新的温度影像图
-        img_by_temperature = generate_thermal_image(file_stream_data)
-
-        # res = np.hstack((rgb, img_test))
-        # show_image_in_gallery(res)
-
-        # 将rgb图像转为bgr图像让opencv显示
-        img_by_yuv = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
-        # img_test = cv2.cvtColor(img_test, cv2.COLOR_RGB2BGR)
-        # display_images((rgb_img, img_test))
-
-        # cv2.imshow("Image YUV", img_by_yuv)
-        cv2.imshow("Image Temp", img_by_temperature)
-        # 设置鼠标回调函数
-        cv2.setMouseCallback('Image Temp', mouse_callback)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+            # 读取温度数据
+            pos = 4640 + (192 * real_y + real_x) * 2
+            # pos = x * y * 2
+            file_stream_data.seek(pos)
+            byte_array = file_stream_data.read(2)
+            # 解析温度数据
+            temp = parse_real_temp(byte_array)
+            print("点击坐标：", x, y, "温度：", temp)
 
 
 def play_video_series(video_path):
@@ -144,8 +86,6 @@ def play_video_series(video_path):
 
         print("正在解析：{0}, 耗时：{1} s".format(file_name, round(time_consuming, 2)))
 
-        # 如何稳定25帧率播放
-        fps = 25
         # 图像播放间隔时间
         delay = int(float(1 / int(fps) * 1000))
 
@@ -164,14 +104,10 @@ def play_raw_series(video_path, using_yuv=False):
        :param video_path:
        :return:
        '''
+    global cur_file_path
 
     # 初始化播放状态标志
     is_playing = True
-
-    # 视频播放帧率
-    fps = 25
-
-    is_rotate = True
 
     # extract zip file of raw video, and get the path to extract
     raw_pic_dir = extra_raw_video(video_path)
@@ -190,6 +126,8 @@ def play_raw_series(video_path, using_yuv=False):
 
         file_path = raw_pic_dir + "/" + file_name
 
+        cur_file_path = file_path
+
         time_0 = time.time()
 
         img = []
@@ -204,13 +142,15 @@ def play_raw_series(video_path, using_yuv=False):
         # todo 对热红外进行预处理，提取水流特征
 
         # 重新缩放显示
-        img = cv2.resize(img, (width * 4, height * 4))
+        img = cv2.resize(img, (width * scale, height * scale))
 
-        if is_rotate:
+        if is_rotate_clockwise:
             # 因为拍摄的时候不是竖屏，所以需要旋转
             img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
         cv2.imshow("Image", img)
+        # 设置鼠标回调函数
+        cv2.setMouseCallback('Image', mouse_callback)
 
         cur_frame = int(file_name)
         str_progress = format_time(int(cur_frame / fps))
