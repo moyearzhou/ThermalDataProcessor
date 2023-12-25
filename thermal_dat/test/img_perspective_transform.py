@@ -129,3 +129,7 @@ def show_and_transform(img_path):
     cv2.imshow("original_img", img)
     cv2.setMouseCallback("original_img", capture_event)
     cv2.waitKey(0)
+
+
+def show_raw(raw_path):
+    ...

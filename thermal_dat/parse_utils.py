@@ -220,13 +220,24 @@ def read_yuv_bytes_from(file_path):
 
 def read_rgb_from(file_path, width, height):
     yuv_bytes = read_yuv_bytes_from(file_path)
+    return read_rgb_from_bytes(yuv_bytes, width, height)
+    #
+    # rgb = yuv422_to_rgb(yuv_bytes, width, height)
+    # rgb = rgb.astype(np.uint8)
+    # return rgb
+
+
+def read_rgb_from_bytes(file_bytes, width, height):
+    # print(len(file_bytes))
+
+    yuv_bytes = file_bytes[-98304:]
 
     rgb = yuv422_to_rgb(yuv_bytes, width, height)
     rgb = rgb.astype(np.uint8)
     return rgb
 
 
-def stretch_colors(data, min_temp=15.5, max_temp=30):
+def stretch_colors(data, min_temp=9.0, max_temp=30):
     # 数值范围
     min_val = min_temp if (min_temp is not None) else np.min(data)
     max_val = max_temp if (max_temp is not None) else np.max(data)
@@ -243,11 +254,11 @@ def stretch_colors(data, min_temp=15.5, max_temp=30):
     return colored_data
 
 
-def generate_thermal_image(file_stream_data):
+def generate_thermal_image(stream_file):
     '''
     输入原始的raw图像文件的字节bytes，查找其中的实况温度数据，并且把它根据最大最小温度进行归一化颜色拉伸，
     最终返回处理后的温度数据
-    :param file_stream_data:
+    :param stream_file:
     :return:
     '''
     # print("==============读取各点的温度数据=================")
@@ -256,8 +267,8 @@ def generate_thermal_image(file_stream_data):
 
     for i in range(4640, 102944, 2):
         # 读取温度数据
-        file_stream_data.seek(i)
-        byte_array = file_stream_data.read(2)
+        stream_file.seek(i)
+        byte_array = stream_file.read(2)
         # 解析温度数据
         real_temp = parse_real_temp(byte_array)
         list_real_temps.append(real_temp)
@@ -283,3 +294,44 @@ def generate_thermal_image(file_stream_data):
     bgr_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     return bgr_img
 
+
+
+def generate_thermal_image_from_bytes(file_bytes):
+    '''
+    输入原始的raw图像文件的字节bytes，查找其中的实况温度数据，并且把它根据最大最小温度进行归一化颜色拉伸，
+    最终返回处理后的温度数据
+    :param stream_file:
+    :return:
+    '''
+    # print("==============读取各点的温度数据=================")
+    # 读取各点的温度数据, 从4640到102944之间是全屏温度数据，一共98304（19f2*256*2）
+    list_real_temps = []
+
+    for i in range(4640, 102944, 2):
+        # 读取温度数据
+        # file_bytes.seek(i)
+        byte_array = file_bytes[i: i+2]
+        # 解析温度数据
+        real_temp = parse_real_temp(byte_array)
+        list_real_temps.append(real_temp)
+
+    # 生成一维数组数据
+    # 将列表转换为指定大小的NumPy数组
+    data = np.reshape(list_real_temps, (256, 192))
+
+    # 对数组进行颜色拉伸
+    #
+    colored_data = stretch_colors(data)
+    # print(type(colored_data))
+
+    # # 显示伪彩色影像
+    # plt.imshow(colored_data)
+    # plt.axis('off')
+    # plt.show()
+
+    # 归一化后需要*255才是正常rgb图像
+    img = (colored_data * 255).astype(np.uint8)
+
+    # plt与opencv的颜色模式不一样必须先转换一下
+    bgr_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    return bgr_img
