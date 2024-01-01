@@ -17,21 +17,21 @@ from PIL import Image
 from parse_utils import read_env_temp, read_min_temp, read_max_temp, read_average_temp, \
     parse_real_temp, yuv_2_rgb_2, format_time, extra_raw_video, generate_thermal_image, read_rgb_from, \
     read_rgb_from_bytes, generate_thermal_image_from_bytes
-from thermal_dat.utils import get_shoot_time, add_time
+from thermal_dat.utils import get_shoot_time, add_time, get_total_frames
 
 height = 256
 width = 192
 
 CUR_FRAME_BYTES = ""
 
-is_rotate_clockwise = True
+is_rotate_clockwise = False
 
 scale = 4
 
 # 视频播放帧率
 fps = 25
 
-using_yuv = False
+using_yuv = True
 
 draw_time = True
 
@@ -142,6 +142,102 @@ def draw_time_in_image(img, str_progress, str_shoot_time):
     color = (0, 255, 0)  # BGR color format (绿色)
     # 绘制视频进度的文字
     cv2.putText(img, text, position, font, font_scale, color, thickness)
+
+
+def play_raw_series_in_folder(video_path):
+    '''
+       这是播放ThermalCam拍摄的未压缩的自定义格式的文件夹
+       :param video_path:
+       :return:
+       '''
+    global CUR_FRAME_BYTES, using_yuv
+
+    # 初始化播放状态标志
+    is_playing = True
+
+    # 获取当前图像序列开始拍摄的时间
+    time_start_shoot = get_shoot_time(video_path)
+
+    # 存放分页帧序列的文件夹位置
+    dir_raws = os.path.join(video_path, "raw")
+
+    total_frames = get_total_frames(video_path)
+
+    # 分页的间隔
+    paging_interval = 100
+
+    for frame_index in range(total_frames):
+        page_index = int(frame_index / paging_interval)
+        # 分页文件的名字
+        part_file_name = "{0}.part".format('{:08d}'.format(page_index))
+
+        path_part_file = os.path.join(dir_raws, part_file_name)
+        # print(path_part_file)
+
+        # 目标帧在分页文件中的位置
+        pos_index = int(frame_index % paging_interval)
+
+        # 打开 ZIP 文件
+        with zipfile.ZipFile(path_part_file, 'r') as zip_ref:
+            #  目标帧在分页文件中的名称
+            frame_name_in_part = "{0}.{1}".format('{:08d}'.format(pos_index), '{:08d}'.format(frame_index))
+
+            file_bytes = zip_ref.read(frame_name_in_part)
+
+            CUR_FRAME_BYTES = file_bytes
+
+            if not is_playing:
+                key = cv2.waitKey()
+                # 按下空格键切换播放状态
+                if key == ord(' '):
+                    is_playing = not is_playing
+
+            # CUR_FRAME_FILE_PATH = target_file_path
+
+            time_0 = time.time()
+
+            img = []
+            if using_yuv:
+                rgb = read_rgb_from_bytes(file_bytes, width, height)
+                img = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+            else:
+                img = generate_thermal_image_from_bytes(file_bytes)
+            # todo 对热红外进行预处理，提取水流特征
+
+            # 重新缩放显示
+            img = cv2.resize(img, (width * scale, height * scale))
+
+            if is_rotate_clockwise:
+                # 因为拍摄的时候不是竖屏，所以需要旋转
+                img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+
+            # 视频的播放进度时间
+            str_progress = format_time(int(frame_index / fps))
+            # 当前帧的拍摄时间
+            str_shoot_time = add_time(time_start_shoot, str_progress)
+
+            # 在图上绘制时间标注
+            if draw_time:
+                draw_time_in_image(img, str_progress, str_shoot_time)
+
+            cv2.imshow("Image", img)
+            # 设置鼠标回调函数
+            cv2.setMouseCallback('Image', mouse_callback)
+
+            time_consuming = time.time() - time_0
+            print("{0} 正在解析：{1}, 解析耗时：{2} s".format(str_progress, frame_name_in_part, round(time_consuming, 2)))
+
+            # 图像播放间隔时间
+            delay = int((float(1 / int(fps)) * 1000))
+
+            key = cv2.waitKey(delay)
+            # 按下空格键切换播放状态
+            if key == ord(' '):
+                is_playing = not is_playing
+            # 按下 'q' 键退出循环
+            elif key == ord('q'):
+                break
+        # print("正在加载第{0}帧".format(frame_index))
 
 
 def play_raw_series(video_path):

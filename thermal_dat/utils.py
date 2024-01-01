@@ -4,6 +4,7 @@
 # @File : utils.y
 # @Software : PyCharm
 import datetime
+import json
 import os
 import zipfile
 
@@ -66,3 +67,12 @@ def get_name_without_extension(path):
     name_without_extension = os.path.splitext(file_name)[0]
     # print(name_without_extension)
     return name_without_extension
+
+
+def get_total_frames(video_path):
+    config_path = os.path.join(video_path, "config.json")
+    total_frames = -1
+    with open(config_path, 'r') as file:
+        data = json.load(file)
+        total_frames = data["totalFrames"]
+    return total_frames
