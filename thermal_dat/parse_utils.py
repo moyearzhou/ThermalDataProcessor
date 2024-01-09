@@ -278,7 +278,6 @@ def generate_thermal_image(stream_file):
     data = np.reshape(list_real_temps, (256, 192))
 
     # 对数组进行颜色拉伸
-    #
     colored_data = stretch_colors(data)
     # print(type(colored_data))
 

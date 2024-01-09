@@ -4,6 +4,7 @@ import os
 import raw_phtoto_play as play_util
 import official_video_utils as official_util
 from thermal_dat import raw_video_convert
+from thermal_dat.test.img_perspective_transform import show_and_transform
 from thermal_dat.test.raw_file_convert import modify_zip_structure
 
 
@@ -26,6 +27,18 @@ def mult_convert():
         # 处理每个文件
         print("正在转换mp4：{0}".format(file_path))
         raw_video_convert.export_video(file_path)
+def mult_convert2():
+    folder_path = r"E:\Moyear\文档\冲刷实验\20240105_第四次冲刷实验\1 热红外成像"  # 文件夹路径
+    extension = '*.video'  # 文件后缀名
+
+    # 使用 glob 模块获取所有符合条件的文件路径
+    file_paths = glob.glob(os.path.join(folder_path, extension))
+
+    # 遍历文件路径列表
+    for file_path in file_paths:
+        # 处理每个文件
+        print("正在转换mp4：{0}".format(file_path))
+        raw_video_convert.export_video_in_folder(file_path)
 
 
 def convert_zip_files():
@@ -53,27 +66,23 @@ if __name__ == '__main__':
     # play_util.play_video_series(photo_seq_path)
 
     # ====================raw视频播放======================
-    # zip_video_path = r"res/videos/20231208175018_9120.raws"
-    # zip_video_path = r"res/videos/20231211160928_1773.raws"
     # zip_video_path = r"E:\Moyear\文档\冲刷实验\20231222_第一次冲刷实验\1 热红外成像\原始数据\20231222155646_5754.raws"
     # zip_video_path = r"E:\Moyear\文档\冲刷实验\20231226_第二次冲刷实验\1 热红外成像\20231226161512_5643.raws"
     # play_util.play_raw_series(zip_video_path)
 
-    video_path = r"E:\Moyear\Dev\PycharmProjects\shallow_flow\thermal_dat\res\videos\20231230213456_7395.video"
-    # play_util.play_raw_series_in_folder(video_path)
-    raw_video_convert.export_video_in_folder(video_path)
+    video_path = r"E:\Moyear\文档\冲刷实验\20240105_第四次冲刷实验\1 热红外成像\20240105120009_4222.video"
+    play_util.play_raw_series_in_folder(video_path)
+    # raw_video_convert.export_video_in_folder(video_path)
+
 
     # ====================raw视频转换为mp4======================
     # raw_video_convert.export_video(zip_video_path)
 
     # play_util.open_stream_file()
 
-    # mult_convert()
-
     # ====================图片透视处理======================
-    # image_path = r"res/pic_3.png"
+    # image_path = r"res/img_transform.png"
     # show_and_transform(image_path)
 
-    # convert_zip_files()
-
+    # mult_convert2()
 

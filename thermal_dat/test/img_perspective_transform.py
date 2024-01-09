@@ -131,5 +131,17 @@ def show_and_transform(img_path):
     cv2.waitKey(0)
 
 
+def show_and_transform(img_path):
+    global img, img2
+
+    img = cv2.imread(img_path)  # 输入图像
+    img2 = img.copy()
+
+    cv2.namedWindow("original_img")
+    cv2.imshow("original_img", img)
+    cv2.setMouseCallback("original_img", capture_event)
+    cv2.waitKey(0)
+
+
 def show_raw(raw_path):
     ...

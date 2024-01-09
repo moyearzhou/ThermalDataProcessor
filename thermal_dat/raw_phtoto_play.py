@@ -11,8 +11,6 @@ import time
 import zipfile
 
 import cv2
-import numpy as np
-from PIL import Image
 
 from parse_utils import read_env_temp, read_min_temp, read_max_temp, read_average_temp, \
     parse_real_temp, yuv_2_rgb_2, format_time, extra_raw_video, generate_thermal_image, read_rgb_from, \
@@ -24,7 +22,7 @@ width = 192
 
 CUR_FRAME_BYTES = ""
 
-is_rotate_clockwise = False
+is_rotate_clockwise = True
 
 scale = 4
 
