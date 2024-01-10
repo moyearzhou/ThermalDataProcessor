@@ -82,6 +82,7 @@ src_points = np.float32(selected_points)
 # 对选择的点进行重排序，位置顺序：左上、右上、右下、左下
 src_points = order_points(src_points)
 
+# 输出结果的长宽
 output_width = dst_rect[0]
 output_height = dst_rect[1]
 dst_points = np.float32([[0, 0], [output_width, 0], [output_width, output_height], [0, output_height]])

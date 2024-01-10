@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 
 from thermal_dat.parse_utils import parse_real_temp
 
-p_list = []  # 左上，右上，左下，右下顺序点击
+# p_list = []  # 左上，右上，左下，右下顺序点击
 
 img_path = r"E:\Users\Moyear\Desktop\测试视频\00000000.00000000"
 
@@ -110,30 +110,6 @@ def four_point_transform(img, rect, dst_rect):
     dst = cv2.warpPerspective(img, M, dst_rect)
     return dst
 
-
-# def capture_event(event, x, y, flags, params):
-#     if event == cv2.EVENT_LBUTTONDOWN:
-#         # 绘制点击的位置
-#         cv2.circle(img, (x, y), 5, (0, 0, 255), -1)
-#         cv2.imshow("original_img", img)
-#         p_list.append([x, y])
-#
-#         if len(p_list) == 4:
-#             # 对选择的4个角点进行排序，顺序：左上、右上、右下、左下
-#             rect = order_points(np.float32(p_list))
-#
-#             img_dst = four_point_transform(img2, rect, dst_rect)  # 按照指定的长宽进行透射变换
-#             # img_dst = auto_perspective_transform(img2, rect)  # 根据选择的角点位置，自动计算变换后的长宽，然后进行透射变换
-#
-#             print("after perspective transformation, image height: {0}, width: {1}"
-#                   .format(img_dst.shape[0], img_dst.shape[1]))
-#
-#             # _, img_dst = cv2.threshold(img_dst[:,:,2], 127, 255, cv2.THRESH_BINARY)
-#
-#             cv2.imshow("result_img", img_dst)
-#             cv2.imwrite('../output/transformed.jpg', img_dst)  # 输出图像到文件
-
-
 # 定义鼠标事件回调函数
 def mouse_callback(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
@@ -153,10 +129,10 @@ def mouse_callback(event, x, y, flags, param):
         byte_array = CUR_FRAME_BYTES[pos: pos+2]
         # 解析温度数据
         temp = parse_real_temp(byte_array)
-        print("点击坐标：", x, y, "温度：", temp)
+        print("点击坐标：(", x, ",", y, ") 温度：", temp)
 
 
-def stretch_colors(data, min_temp=15.0, max_temp=30):
+def stretch_colors(data, min_temp=10, max_temp=30):
     # 数值范围
     min_val = min_temp if (min_temp is not None) else np.min(data)
     max_val = max_temp if (max_temp is not None) else np.max(data)
@@ -262,25 +238,40 @@ with open(img_path, 'rb') as file_stream_data:
     # 将排序好的轮廓放入 ndarray 中
     sorted_contours = np.array(rows)
 
-    print(sorted_contours.shape)
-
     # 前两列为左边的轮廓，后两列为右边的轮廓
     left_contours = sorted_contours[:, :2]
     right_contours = sorted_contours[:, 2:]
 
-    print(type(left_contours))
-
     # 打印左边和右边的轮廓数量
     print(f'Left contours: {left_contours.size}, Right contours: {right_contours.size}')
 
-    # # 在 output 图像上绘制左边的轮廓，我们用白色表示轮廓，线宽设为 2
-    # for cnt in left_contours:
-    #     cv2.drawContours(img, [cnt], -1, (255, 255, 255), 2)
-
+    # 标靶物体轮廓的集合
+    target_contours = right_contours
     # 绘制轮廓到原图像上，-1表示所有轮廓，(0,255,0)是颜色，2是线条粗细
-    cv2.drawContours(img, left_contours.flatten(), -1, (0, 0, 255), 2)
+    cv2.drawContours(img, target_contours.flatten(), -1, (0, 0, 255), 2)
 
-    cv2.imshow("Image", img)
+    # 输出结果的长宽
+    output_width = dst_rect[0]
+    output_height = dst_rect[1]
+    dst_points = np.float32([[0, 0], [output_width, 0], [output_width, output_height], [0, output_height]])
+
+    # 初始化一个空的列表来存储标靶的质心
+    centroids = []
+    # 计算每个轮廓的质心，并将其添加到列表中
+    for cnt in target_contours.flatten():
+        M = cv2.moments(cnt)
+        cX = int(M["m10"] / M["m00"])
+        cY = int(M["m01"] / M["m00"])
+        centroids.append((cX, cY))
+    # 对标靶的点进行重排序，位置顺序：左上、右上、右下、左下
+    src_points = order_points(np.float32(centroids))
+
+    # 计算透视变换矩阵
+    perspective_matrix = cv2.getPerspectiveTransform(src_points, dst_points)
+    # 应用透视变换
+    warped_frame = cv2.warpPerspective(img, perspective_matrix, (output_width, output_height))
+
+    cv2.imshow("Image", warped_frame)
     # 设置鼠标回调函数
     cv2.setMouseCallback('Image', mouse_callback)
     cv2.waitKey(0)
