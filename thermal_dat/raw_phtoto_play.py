@@ -164,7 +164,10 @@ def play_raw_series_in_folder(video_path):
     # 分页的间隔
     paging_interval = 100
 
-    for frame_index in range(total_frames):
+    frame_index = 0
+
+    # for frame_index in range(total_frames):
+    while frame_index < total_frames:
         page_index = int(frame_index / paging_interval)
         # 分页文件的名字
         part_file_name = "{0}.part".format('{:08d}'.format(page_index))
@@ -232,10 +235,20 @@ def play_raw_series_in_folder(video_path):
             # 按下空格键切换播放状态
             if key == ord(' '):
                 is_playing = not is_playing
+            elif key == ord('a'):  # 如果按下 'left' 键，视频快退 3 秒
+                print("快退 3 秒")
+                frame_index = frame_index - 3 * fps
+                if frame_index < 0:
+                    frame_index = 0
+
+            elif key == ord('d'):  # 如果按下 'right' 键，视频快进 3 秒
+                frame_index = frame_index + 3 * fps
+                print("快进 3 秒")
             # 按下 'q' 键退出循环
             elif key == ord('q'):
                 break
         # print("正在加载第{0}帧".format(frame_index))
+        frame_index = frame_index + 1
 
 
 def play_raw_series(video_path):
