@@ -29,7 +29,7 @@ scale = 4
 # 视频播放帧率
 fps = 25
 
-using_yuv = True
+using_yuv = False
 
 draw_time = True
 

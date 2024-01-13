@@ -237,7 +237,7 @@ def read_rgb_from_bytes(file_bytes, width, height):
     return rgb
 
 
-def stretch_colors(data, min_temp=9.0, max_temp=30):
+def stretch_colors(data, min_temp=9.0, max_temp=25):
     # 数值范围
     min_val = min_temp if (min_temp is not None) else np.min(data)
     max_val = max_temp if (max_temp is not None) else np.max(data)

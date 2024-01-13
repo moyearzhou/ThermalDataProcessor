@@ -27,8 +27,10 @@ def mult_convert():
         # 处理每个文件
         print("正在转换mp4：{0}".format(file_path))
         raw_video_convert.export_video(file_path)
+
+
 def mult_convert2():
-    folder_path = r"E:\Moyear\文档\冲刷实验\20240109_第五次冲刷实验\1 热红外成像"  # 文件夹路径
+    folder_path = r"E:\Moyear\文档\冲刷实验\20240111_第六次冲刷实验\1 热红外成像"  # 文件夹路径
     extension = '*.video'  # 文件后缀名
 
     # 使用 glob 模块获取所有符合条件的文件路径
@@ -70,7 +72,7 @@ if __name__ == '__main__':
     # zip_video_path = r"E:\Moyear\文档\冲刷实验\20231226_第二次冲刷实验\1 热红外成像\20231226161512_5643.raws"
     # play_util.play_raw_series(zip_video_path)
 
-    video_path = r"E:\Moyear\文档\冲刷实验\20240109_第五次冲刷实验\1 热红外成像\20240109153010_5887.video"
+    video_path = r"E:\Moyear\文档\冲刷实验\20240111_第六次冲刷实验\1 热红外成像\20240111165019_4874.video"
     play_util.play_raw_series_in_folder(video_path)
     # raw_video_convert.export_video_in_folder(video_path)
 
