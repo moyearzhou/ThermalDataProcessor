@@ -5,10 +5,10 @@
 # @Software : PyCharm
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
 
-# Load the image
-file_path = r'../res/blue_contour.png'
+from measure_velovity_gui.velocity_measurer import VelocityMeasure
+
+# file_path = r'../res/blue_contour.png'
 video_path = r"E:\Moyear\文档\冲刷实验\测试数据\轨迹.mp4"
 
 fps = 25
@@ -24,41 +24,7 @@ real_width = 400
 # 像素到毫米的比例，根据实际情况调整
 pixel_to_mm = -1
 
-
-def mask_by_hsv(image):
-    '''
-    提取坡面中的蓝色部分区域
-    :param image:
-    :return:
-    '''
-    # Convert the image to HSV (Hue, Saturation, Value) color space
-    image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-
-    # Define the range of blue color in HSV
-    lower_blue = np.array([100, 30, 10])
-    upper_blue = np.array([150, 255, 255])
-
-    # Threshold the HSV image to get only blue colors
-    mask = cv2.inRange(image_hsv, lower_blue, upper_blue)
-    return mask
-
-
-def find_blue_contours(mask):
-    # Perform a series of erosions and dilations on the mask to remove small blobs
-    kernel = np.ones((3, 3), np.uint8)
-    mask = cv2.erode(mask, kernel, iterations=3)
-    mask = cv2.dilate(mask, kernel, iterations=3)
-
-    cv2.imshow("mask", mask)
-
-    # Find contours in the masked image
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    # todo 对这些轮廓进行一定过滤
-
-    # Find the largest contour by area
-    largest_contour = max(contours, key=cv2.contourArea) if contours else None
-    return contours
+video_measurer = VelocityMeasure()
 
 
 def get_center_point(contour):
@@ -71,10 +37,13 @@ def get_center_point(contour):
 
 
 def video_extract():
-    cap = cv2.VideoCapture(video_path)
+    video_measurer.init_with_video(video_path)
 
-    frame_width = int(cap.get(3))
-    frame_height = int(cap.get(4))
+    frame_width = video_measurer.frame_width
+    frame_height = video_measurer.frame_height
+
+    # frame_width = int(cap.get(3))
+    # frame_height = int(cap.get(4))
     print('视频宽：{0}，高：{1}'.format(frame_width, frame_height))
     pixel_to_mm = real_height / frame_height
 
@@ -89,24 +58,21 @@ def video_extract():
     frame_index = 0
     # 逐帧处理视频4321    ·
     while True:
-        ret, frame = cap.read()
+        ret, frame = video_measurer.read()
         if not ret:
             break
 
         frame_index += 1
 
-        # 对视频进行一定的旋转操作，使水流自上而下流动
-        frame = cv2.rotate(frame, cv2.ROTATE_180)
-
         cv2.imshow('ori', frame)
-        # 根据蓝色提取出坡面中可能为染色的区域
-        mask = mask_by_hsv(frame)
+        # mask = video_measurer.get_blue_mask()
         # 通过形态学操作，过滤出蓝色流体的区域
-        contours = find_blue_contours(mask)
+        contours = video_measurer.get_blue_contours()
 
-        # Draw the largest contour on the original image
-        contour_image = frame.copy()
-        cv2.drawContours(contour_image, contours, -1, (0, 0, 255), 2)
+        # todo 对这些轮廓进行一定过滤
+        # contours_centers = get_contour_centers(contours)
+
+        contour_image = video_measurer.get_image_with_contours()
 
         # todo 根据轮廓计算流速
         # 计算流速
@@ -140,9 +106,22 @@ def video_extract():
                 contour_x = x
                 contour_y = y + h
 
+                # 设置文字参数
+                text = "({0},{1})".format(contour_x, contour_y)
+                position = (contour_x + 10, contour_y)
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                # 指定字体为宋体
+                # font = "SimSun"
+                font_scale = 0.4
+                color = (0, 255, 0)  # BGR color format (红色)
+                thickness = 1
+
+                # 绘制视频进度的文字
+                cv2.putText(contour_image, text, position, font, font_scale, color, thickness)
+
                 # 打印结果
                 # print("最大y坐标的轮廓的x坐标：", contour_x)
-                # print("最大y坐标的轮廓的y坐标：", contour_y)
+                print("最大y坐标的轮廓的y坐标：", contour_y)
             else:
                 print("未找到轮廓")
 
@@ -159,22 +138,22 @@ def video_extract():
                 y0 = pre_center[1]
                 y1 = cur_center[1]
 
-                displacement = np.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2)
-                real_distance = displacement * pixel_to_mm  # 计算真实移动的距离，单位mm
+                if y1 > y0:
+                    displacement = np.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2)
+                    real_distance = displacement * pixel_to_mm  # 计算真实移动的距离，单位mm
+                    # print(real_distance)
 
-                # print(real_distance)
+                    if real_distance >= 100:
+                        time_interval = (frame_index - start_frame_index) / fps  # 时间间隔，单位为ms
+                        # print(time_interval)
 
-                if real_distance >= 100:
-                    time_interval = (frame_index - start_frame_index) / fps  # 时间间隔，单位为ms
+                        flow_speed = real_distance / time_interval  # 计算流速，单位：mm/ms即是m/s
+                        # print('Flow Speed:', flow_speed, "m/s")
 
-                    flow_speed = real_distance / time_interval  # 计算流速，单位：mm/ms即是m/s
-                    print('Flow Speed:', flow_speed, "m/s")
-
-                    # todo 如果在它前面则更新
-                    # if y1 > y0:
-                    pre_contour = max_contour
-                    start_frame_index = frame_index
-
+                        # todo 如果在它前面则更新
+                        # if y1 > y0:
+                        pre_contour = max_contour
+                        start_frame_index = frame_index
 
         # print(contours)
 
