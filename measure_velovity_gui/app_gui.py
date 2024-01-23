@@ -16,6 +16,7 @@ from measure_velovity_gui.velocity_measurer import VelocityMeasure
 
 video_measurer = VelocityMeasure()
 
+
 def handle_exception(exc_type, exc_value, exc_traceback):
     # 构建奔溃信息
     exception_str = "".join(
@@ -43,6 +44,9 @@ if __name__ == "__main__":
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
+    # 绑定监听器
     ui.bindListener(MainWindow)
+    # 初始化表格布局
+    ui.init_table_view()
     MainWindow.show()
     sys.exit(my_app.exec_())

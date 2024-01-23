@@ -122,6 +122,20 @@ class VelocityMeasure:
     def get_image_with_measure_points(self):
         image_with_measure_points = self.cur_frame_rgb.copy()
 
+        # # todo 绘制刻度线
+        # # 计算刻度线的宽度和高度
+        # scale_width = 20  # 刻度线的宽度
+        # scale_height = self.frame_height // 5  # 刻度线的高度，将图片高度分成5等分
+        #
+        # width = self.frame_width
+        #
+        # # 在图片右侧绘制刻度线
+        # for i in range(5):
+        #     y_start = i * scale_height
+        #     y_end = y_start + scale_height
+        #     image_with_measure_points = cv2.line(image_with_measure_points, (width, y_start), (width + scale_width, y_start), (0, 255, 0), 2)
+        #     image_with_measure_points = cv2.line(image_with_measure_points, (width, y_end), (width + scale_width, y_end), (0, 255, 0), 2)
+
         radius = 5  # 圆点的半径
         color = (0, 0, 255)  # 圆点的颜色，这里使用红色
         thickness = -1  # 圆点的填充，-1表示填充整个圆
