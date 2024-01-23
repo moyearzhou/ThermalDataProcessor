@@ -16,9 +16,13 @@ class VelocityMeasure:
     frame_width = -1
     frame_height = -1
 
-    frame_index = 0
+    cur_frame_index = 0
 
+    # 当前帧图像bgr模式
     cur_frame = None
+
+    cur_frame_rgb = None
+
     cur_frame_with_contours = None
 
     # 槽子的长度为160cm
@@ -30,6 +34,11 @@ class VelocityMeasure:
     pixel_to_mm = -1
 
     rotation_type = 0
+
+    # 在第几帧开始冲刷的
+    frame_index_to_scouring = -1
+
+    measure_points = []
 
     def init_with_video(self, vid_path):
         self.video_path = vid_path
@@ -49,8 +58,42 @@ class VelocityMeasure:
         frame = cv2.rotate(frame, cv2.ROTATE_180)
 
         self.cur_frame = frame
-        self.cur_frame += 1
+        self.cur_frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGRA2RGB)
+
+        self.cur_frame_index += 1
         return ret, frame
+
+    def skip_to_frame(self, frame_num):
+        if frame_num < 0 or frame_num >= self.get_total_frames():
+            print('要跳转到帧数[{0}]有误！！'.format(frame_num))
+            return
+
+        # 跳转到第 100 帧
+        self.cap.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
+        self.cur_frame_index = frame_num
+        self.read()
+
+    def forward(self, frame_num):
+        target_frame_index = self.cur_frame_index + frame_num
+
+        if target_frame_index < 0 or target_frame_index >= self.get_total_frames():
+            print('要的前进帧数[{0}]有误！！'.format(frame_num))
+            return
+        self.skip_to_frame(target_frame_index)
+
+    def rewind(self, frame_num):
+        target_frame_index = self.cur_frame_index - frame_num
+
+        if target_frame_index < 0 or target_frame_index >= self.get_total_frames():
+            print('要后退的帧数[{0}]有误！！'.format(frame_num))
+            return
+
+        self.skip_to_frame(target_frame_index)
+
+    def get_total_frames(self):
+        # Get the total number of frames
+        total_frames = self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
+        return total_frames
 
     def get_blue_mask(self):
         '''
@@ -59,12 +102,12 @@ class VelocityMeasure:
         '''
         return mask_by_hsv(self.cur_frame)
 
-    def get_ori_image(self):
+    def get_rgb_image(self):
         '''
         获取原始图片
         :return:
         '''
-        return self.cur_frame
+        return self.cur_frame_rgb
 
     def get_image_with_contours(self):
         '''
@@ -76,6 +119,38 @@ class VelocityMeasure:
         cv2.drawContours(cur_frame_with_contours, contours, -1, (0, 0, 255), 2)
         return cur_frame_with_contours
 
+    def get_image_with_measure_points(self):
+        image_with_measure_points = self.cur_frame_rgb.copy()
+
+        radius = 5  # 圆点的半径
+        color = (0, 0, 255)  # 圆点的颜色，这里使用红色
+        thickness = -1  # 圆点的填充，-1表示填充整个圆
+
+        font = cv2.FONT_HERSHEY_SIMPLEX  # 字体类型
+        font_scale = 0.5  # 字体缩放因子
+        text_color = (0, 255, 0)  # 文字的颜色，这里使用绿色
+        text_thickness = 1  # 文字的线宽
+
+        if self.measure_points is not None and self.measure_points != []:
+            for point in self.measure_points:
+                x = int(point[0])
+                y = int(point[1])
+
+                # frame_index = point[1]
+                # point_time = frame_to_time_progress(frame_index, self.fps)
+
+                # 绘制圆点
+                center = (x, y)  # 圆点的中心坐标
+                cv2.circle(image_with_measure_points, center, radius, color, thickness)
+
+                # 添加文字
+                text = "({0},{1})".format(x, y)
+                org = (int(point[0] + 10), int(point[1]) + 10)  # 文字的起始坐标
+
+                cv2.putText(image_with_measure_points, text, org, font, font_scale, text_color, text_thickness)
+
+        return image_with_measure_points
+
     def get_mask_after_morphological_operate(self):
         mask = self.get_blue_contours()
         mask = morphological_operate(mask)
@@ -84,6 +159,25 @@ class VelocityMeasure:
     def get_blue_contours(self):
         mask = mask_by_hsv(self.cur_frame)
         return find_blue_contours(mask)
+
+    def clear_measure_points(self):
+        self.measure_points = []
+
+    def set_current_frame_as_init_scouring(self):
+        self.frame_index_to_scouring = self.cur_frame_index
+
+    def add_measure_point(self, x, y, frame_index):
+        if x < 0 or x >= self.frame_width:
+            print('测速点x位置不合理')
+            return
+        if y < 0 or y >= self.frame_height:
+            print('测速点y位置不合理')
+            return
+        if frame_index < 0 or frame_index >= self.get_total_frames():
+            print('测速点的时间帧不合理')
+            return
+        self.measure_points.append((x, y, frame_index))
+
 
 
 def mask_by_hsv(image):
@@ -129,7 +223,7 @@ def find_blue_contours(mask):
     :return:
     '''
     mask = morphological_operate(mask)
-    cv2.imshow("mask", mask)
+    # cv2.imshow("mask", mask)
 
     # Find contours in the masked image
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
