@@ -22,7 +22,12 @@ from measure_velovity_gui.velocity_measurer import VelocityMeasure
 class Ui_MainWindow(object):
     video_measurer = VelocityMeasure()
 
-    table_headers = ["序号", "流速值", "平均测速位置", "开始测速位置", "结束测速位置", "开始测速时间", "结束测速时间", "坡面名称", "视频名称"]
+    table_headers = ["序号", "测速轮次", "流速值", "平均测速位置", "平均测速时刻", "开始测速位置", "结束测速位置", "开始测速时间", "结束测速时间", "坡面名称", "视频名称"]
+
+    # 临时的测量结果
+    temp_measures = []
+
+    cur_measure_round = 0
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -76,32 +81,35 @@ class Ui_MainWindow(object):
         self.imgCal.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.imgCal.setObjectName("imgCal")
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QtCore.QRect(560, 200, 431, 111))
+        self.groupBox.setGeometry(QtCore.QRect(560, 180, 431, 141))
         self.groupBox.setObjectName("groupBox")
-        self.textEdit_5 = QtWidgets.QTextEdit(self.groupBox)
-        self.textEdit_5.setGeometry(QtCore.QRect(70, 60, 104, 31))
-        self.textEdit_5.setObjectName("textEdit_5")
+        self.edtErosion = QtWidgets.QTextEdit(self.groupBox)
+        self.edtErosion.setGeometry(QtCore.QRect(70, 60, 104, 31))
+        self.edtErosion.setObjectName("edtErosion")
         self.label_5 = QtWidgets.QLabel(self.groupBox)
         self.label_5.setGeometry(QtCore.QRect(240, 30, 54, 12))
         self.label_5.setObjectName("label_5")
-        self.textEdit_4 = QtWidgets.QTextEdit(self.groupBox)
-        self.textEdit_4.setGeometry(QtCore.QRect(310, 60, 104, 31))
-        self.textEdit_4.setObjectName("textEdit_4")
-        self.textEdit = QtWidgets.QTextEdit(self.groupBox)
-        self.textEdit.setGeometry(QtCore.QRect(70, 20, 104, 31))
-        self.textEdit.setObjectName("textEdit")
+        self.edtDilation = QtWidgets.QTextEdit(self.groupBox)
+        self.edtDilation.setGeometry(QtCore.QRect(310, 60, 104, 31))
+        self.edtDilation.setObjectName("edtDilation")
+        self.edtUpperHSV = QtWidgets.QTextEdit(self.groupBox)
+        self.edtUpperHSV.setGeometry(QtCore.QRect(70, 20, 104, 31))
+        self.edtUpperHSV.setObjectName("edtUpperHSV")
         self.label_4 = QtWidgets.QLabel(self.groupBox)
         self.label_4.setGeometry(QtCore.QRect(10, 30, 54, 12))
         self.label_4.setObjectName("label_4")
-        self.textEdit_2 = QtWidgets.QTextEdit(self.groupBox)
-        self.textEdit_2.setGeometry(QtCore.QRect(310, 20, 104, 31))
-        self.textEdit_2.setObjectName("textEdit_2")
+        self.edtLowerHSV = QtWidgets.QTextEdit(self.groupBox)
+        self.edtLowerHSV.setGeometry(QtCore.QRect(310, 20, 104, 31))
+        self.edtLowerHSV.setObjectName("edtLowerHSV")
         self.label_9 = QtWidgets.QLabel(self.groupBox)
         self.label_9.setGeometry(QtCore.QRect(10, 70, 54, 12))
         self.label_9.setObjectName("label_9")
         self.label_8 = QtWidgets.QLabel(self.groupBox)
         self.label_8.setGeometry(QtCore.QRect(240, 70, 54, 12))
         self.label_8.setObjectName("label_8")
+        self.btnApplyDetection = QtWidgets.QPushButton(self.groupBox)
+        self.btnApplyDetection.setGeometry(QtCore.QRect(320, 100, 91, 31))
+        self.btnApplyDetection.setObjectName("btnApplyDetection")
         self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_2.setGeometry(QtCore.QRect(560, 20, 431, 151))
         self.groupBox_2.setObjectName("groupBox_2")
@@ -109,10 +117,10 @@ class Ui_MainWindow(object):
         self.btnClearSetting_3.setGeometry(QtCore.QRect(320, 100, 91, 31))
         self.btnClearSetting_3.setObjectName("btnClearSetting_3")
         self.edtSlopeName = QtWidgets.QTextEdit(self.groupBox_2)
-        self.edtSlopeName.setGeometry(QtCore.QRect(70, 60, 341, 31))
+        self.edtSlopeName.setGeometry(QtCore.QRect(70, 60, 241, 31))
         self.edtSlopeName.setObjectName("edtSlopeName")
         self.labelTimeScouring = QtWidgets.QLabel(self.groupBox_2)
-        self.labelTimeScouring.setGeometry(QtCore.QRect(10, 110, 121, 16))
+        self.labelTimeScouring.setGeometry(QtCore.QRect(10, 110, 131, 16))
         self.labelTimeScouring.setObjectName("labelTimeScouring")
         self.label_6 = QtWidgets.QLabel(self.groupBox_2)
         self.label_6.setGeometry(QtCore.QRect(10, 70, 54, 12))
@@ -123,6 +131,9 @@ class Ui_MainWindow(object):
         self.btnImportVideo = QtWidgets.QPushButton(self.groupBox_2)
         self.btnImportVideo.setGeometry(QtCore.QRect(330, 20, 81, 31))
         self.btnImportVideo.setObjectName("btnImportVideo")
+        self.btnSetSlopeName = QtWidgets.QPushButton(self.groupBox_2)
+        self.btnSetSlopeName.setGeometry(QtCore.QRect(320, 60, 91, 31))
+        self.btnSetSlopeName.setObjectName("btnSetSlopeName")
         self.btnAddPoint = QtWidgets.QPushButton(self.centralwidget)
         self.btnAddPoint.setGeometry(QtCore.QRect(1110, 20, 81, 31))
         self.btnAddPoint.setObjectName("btnAddPoint")
@@ -133,7 +144,7 @@ class Ui_MainWindow(object):
         self.listWidget.setGeometry(QtCore.QRect(0, 20, 251, 231))
         self.listWidget.setObjectName("listWidget")
         self.tableWidget = QtWidgets.QTableWidget(self.centralwidget)
-        self.tableWidget.setGeometry(QtCore.QRect(560, 360, 721, 611))
+        self.tableWidget.setGeometry(QtCore.QRect(560, 360, 721, 191))
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(0)
         self.tableWidget.setRowCount(0)
@@ -143,9 +154,20 @@ class Ui_MainWindow(object):
         self.btnCalVelocity = QtWidgets.QPushButton(self.centralwidget)
         self.btnCalVelocity.setGeometry(QtCore.QRect(1090, 320, 81, 31))
         self.btnCalVelocity.setObjectName("btnCalVelocity")
-        self.btnCalVelocity_2 = QtWidgets.QPushButton(self.centralwidget)
-        self.btnCalVelocity_2.setGeometry(QtCore.QRect(1190, 320, 91, 31))
-        self.btnCalVelocity_2.setObjectName("btnCalVelocity_2")
+        self.btnAddToResults = QtWidgets.QPushButton(self.centralwidget)
+        self.btnAddToResults.setGeometry(QtCore.QRect(1190, 320, 91, 31))
+        self.btnAddToResults.setObjectName("btnAddToResults")
+        self.tableWidgetResult = QtWidgets.QTableWidget(self.centralwidget)
+        self.tableWidgetResult.setGeometry(QtCore.QRect(560, 600, 721, 381))
+        self.tableWidgetResult.setObjectName("tableWidgetResult")
+        self.tableWidgetResult.setColumnCount(0)
+        self.tableWidgetResult.setRowCount(0)
+        self.label_2 = QtWidgets.QLabel(self.centralwidget)
+        self.label_2.setGeometry(QtCore.QRect(570, 570, 91, 16))
+        self.label_2.setObjectName("label_2")
+        self.btnExportMeasures = QtWidgets.QPushButton(self.centralwidget)
+        self.btnExportMeasures.setGeometry(QtCore.QRect(1190, 560, 91, 31))
+        self.btnExportMeasures.setObjectName("btnExportMeasures")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1308, 22))
@@ -167,6 +189,7 @@ class Ui_MainWindow(object):
         self.actiona = QtWidgets.QAction(MainWindow)
         self.actiona.setObjectName("actiona")
         self.menu.addAction(self.actionImportVideo)
+        self.menu.addSeparator()
         self.menu.addAction(self.actionimportVelocity)
         self.menu_2.addAction(self.actionextract)
         self.menu_2.addAction(self.actiona)
@@ -187,34 +210,35 @@ class Ui_MainWindow(object):
         self.btnFastRewind.setText(_translate("MainWindow", "快退3秒"))
         self.labelProgress.setText(_translate("MainWindow", "00：00/00：00"))
         self.groupBox.setTitle(_translate("MainWindow", "边缘检测"))
-        self.textEdit_5.setHtml(_translate("MainWindow",
+        self.edtErosion.setHtml(_translate("MainWindow",
                                            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                            "p, li { white-space: pre-wrap; }\n"
                                            "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">2</p></body></html>"))
         self.label_5.setText(_translate("MainWindow", "hsv下限"))
-        self.textEdit_4.setHtml(_translate("MainWindow",
-                                           "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-                                           "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-                                           "p, li { white-space: pre-wrap; }\n"
-                                           "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-                                           "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">5</p></body></html>"))
-        self.textEdit.setHtml(_translate("MainWindow",
-                                         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-                                         "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-                                         "p, li { white-space: pre-wrap; }\n"
-                                         "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-                                         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">100,50,20</p></body></html>"))
+        self.edtDilation.setHtml(_translate("MainWindow",
+                                            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                            "p, li { white-space: pre-wrap; }\n"
+                                            "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">5</p></body></html>"))
+        self.edtUpperHSV.setHtml(_translate("MainWindow",
+                                            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                            "p, li { white-space: pre-wrap; }\n"
+                                            "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">100,50,20</p></body></html>"))
         self.label_4.setText(_translate("MainWindow", "hsv上限"))
-        self.textEdit_2.setHtml(_translate("MainWindow",
-                                           "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-                                           "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-                                           "p, li { white-space: pre-wrap; }\n"
-                                           "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-                                           "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">150,255,255</p></body></html>"))
+        self.edtLowerHSV.setHtml(_translate("MainWindow",
+                                            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                            "p, li { white-space: pre-wrap; }\n"
+                                            "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+                                            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">150,255,255</p></body></html>"))
         self.label_9.setText(_translate("MainWindow", "腐蚀次数"))
         self.label_8.setText(_translate("MainWindow", "膨胀次数"))
+        self.btnApplyDetection.setText(_translate("MainWindow", "应用"))
         self.groupBox_2.setTitle(_translate("MainWindow", "基本信息"))
         self.btnClearSetting_3.setText(_translate("MainWindow", "设置当前时间"))
         self.edtSlopeName.setHtml(_translate("MainWindow",
@@ -223,15 +247,18 @@ class Ui_MainWindow(object):
                                              "p, li { white-space: pre-wrap; }\n"
                                              "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                              "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">null</p></body></html>"))
-        self.labelTimeScouring.setText(_translate("MainWindow", "开始放水时刻： 00:00"))
+        self.labelTimeScouring.setText(_translate("MainWindow", "开始放水时刻：未设置"))
         self.label_6.setText(_translate("MainWindow", "坡面名称"))
         self.labelFileName.setText(_translate("MainWindow", "当前视频:null"))
         self.btnImportVideo.setText(_translate("MainWindow", "导入视频"))
+        self.btnSetSlopeName.setText(_translate("MainWindow", "设置坡面名称"))
         self.btnAddPoint.setText(_translate("MainWindow", "添加测速点"))
         self.groupBox_4.setTitle(_translate("MainWindow", "测速点列表"))
-        self.label.setText(_translate("MainWindow", "测速记录表"))
+        self.label.setText(_translate("MainWindow", "本次测速结果"))
         self.btnCalVelocity.setText(_translate("MainWindow", "测算流速"))
-        self.btnCalVelocity_2.setText(_translate("MainWindow", "添加到记录表"))
+        self.btnAddToResults.setText(_translate("MainWindow", "添加到记录表"))
+        self.label_2.setText(_translate("MainWindow", "测速记录表"))
+        self.btnExportMeasures.setText(_translate("MainWindow", "导出测速结果"))
         self.menu.setTitle(_translate("MainWindow", "菜单"))
         self.menu_2.setTitle(_translate("MainWindow", "识别"))
         self.actionImportVideo.setText(_translate("MainWindow", "导入视频"))
@@ -293,6 +320,8 @@ class Ui_MainWindow(object):
         self.btnImportVideo.clicked.connect(self.import_file)
         # 设置当前为起始冲刷时间
         self.btnClearSetting_3.clicked.connect(self.set_init_scouring)
+        # 设置坡面名称
+        self.btnSetSlopeName.clicked.connect(self.set_slope_name)
 
         self.slider.valueChanged.connect(self.slider_listener)  # 设置值改变时的槽函数
         # 快进按钮
@@ -312,8 +341,16 @@ class Ui_MainWindow(object):
         # 测速按钮
         self.btnCalVelocity.clicked.connect(self.perform_measure_velocity)
 
-    def play_click(self):
-        print('click!!!')
+        # 添加到记录表
+        self.btnAddToResults.clicked.connect(self.add_measures_to_result_sheet)
+
+        # 导出测速文件
+        self.btnExportMeasures.clicked.connect(self.export_measures_to_csv)
+
+    def set_slope_name(self):
+        name = self.edtSlopeName.toPlainText()
+        # print(name)
+        self.video_measurer.set_slope_name(name)
 
     def set_init_scouring(self):
         self.video_measurer.set_current_frame_as_init_scouring()
@@ -375,18 +412,20 @@ class Ui_MainWindow(object):
 
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        file_name, ok = QFileDialog.getOpenFileName(self.centralwidget, "File", default_path,
+        file_path, ok = QFileDialog.getOpenFileName(self.centralwidget, "File", default_path,
                                                    "All Files (*);;Video Files (*.mp4)", options=options)
 
-        if file_name is None or file_name == "":
+        if file_path is None or file_path == "":
             return
 
-        print('选择的文件：', file_name)
+        print('选择的文件：', file_path)
+
+        file_name = os.path.basename(file_path)
 
         # 更新文件名
-        self.labelFileName.setText(os.path.basename(file_name))
+        self.labelFileName.setText(f'视频名称：{file_name}')
 
-        self.video_measurer.init_with_video(file_name)
+        self.video_measurer.init_with_video(file_path)
         self.video_measurer.read()
 
         # 更新视频画面
@@ -440,12 +479,37 @@ class Ui_MainWindow(object):
         # 清空测速点列表
         self.listWidget.clear()
 
+        # 清除本次测速结果
+        self.clear_current_measures()
+
+    def clear_current_measures(self):
+        # 清除临时测速结果
+        self.temp_measures = []
+
+        # 清除本次测速的表格内容
+        self.tableWidget.clearContents()
+        self.tableWidget.setRowCount(0)
+
     def perform_measure_velocity(self):
         video_measurer = self.video_measurer
+
+        if video_measurer.slope_name is None or video_measurer.slope_name == '':
+            self.show_alter_dialog("尚未设置坡面名称")
+            return
+
+        # 第几帧开始冲刷
+        frame_index_to_scouring = video_measurer.frame_index_to_scouring
+
+        # todo 判断是否设置了开始冲刷实验
+        if frame_index_to_scouring is None:
+            self.show_alter_dialog('尚未设置起始冲刷时间！请先设置后再开始计算流速')
+            return
+
         measure_points = video_measurer.measure_points
 
         if measure_points is None or measure_points == []:
             self.show_alter_dialog("尚未添加测速点！请先添加再测速")
+            return
 
         # 对测速点按照先后顺序进行重排序
         # 使用sorted函数对元组列表进行排序，按照元组的第三个元素大小进行排序
@@ -456,12 +520,6 @@ class Ui_MainWindow(object):
 
         pixel_to_mm = self.video_measurer.pixel_to_mm
 
-        # # 添加表格内容
-        # for row in range(5):
-        #     for col in range(3):
-        #         item = QTableWidgetItem(f"行{row + 1}, 列{col + 1}")
-        #         table_widget.setItem(row, col, item)
-
         # 遍历排序后的列表，并计算相邻两个元组的距离差
         for i in range(len(sorted_list) - 1):
             tuple1 = sorted_list[i]
@@ -470,11 +528,30 @@ class Ui_MainWindow(object):
             frame_index_1 = tuple1[2]
             frame_index_2 = tuple2[2]
 
-            # 获取两个点之间的x和y方向上的距离，单位mm
-            x_diff = (tuple2[0] - tuple1[0]) * pixel_to_mm
-            y_diff = (tuple2[1] - tuple1[1]) * pixel_to_mm
+            # 起始测速点的位置，单位为mm
+            real_x1 = tuple1[0] * pixel_to_mm
+            real_y1 = tuple1[1] * pixel_to_mm
+
+            # 结束测速点的位置，单位为mm
+            real_x2 = tuple2[0] * pixel_to_mm
+            real_y2 = tuple2[1] * pixel_to_mm
+
+            # 平均测速点的位置
+            measure_x = (real_x2 + real_x1) / 2
+            measure_y = (real_y2 + real_y1) / 2
+
+            # 获取两个点之间的x和y方向上的距离，单位为mm
+            x_diff = real_x2 - real_x1
+            y_diff = real_y2 - real_y1
             distance = math.sqrt(x_diff ** 2 + y_diff ** 2)
             # print(f"距离差：{distance} 帧数差：{frame_index_2 - frame_index_1}")
+
+            # 起始测速点的真实时间
+            time_start_measure = frame_to_time_progress((frame_index_1 - frame_index_to_scouring), fps)
+            # 结束测速点的真实时间
+            time_end_measure = frame_to_time_progress((frame_index_2 - frame_index_to_scouring), fps)
+            # 平均测速时刻
+            time_measure_velocity = frame_to_time_progress(((frame_index_2 + frame_index_1) / 2 - frame_index_to_scouring), fps)
 
             # 获取时间差
             time_differ = (frame_index_2 - frame_index_1) * 1000 / fps
@@ -486,33 +563,83 @@ class Ui_MainWindow(object):
             velocity = distance / time_differ
             print(f'流速: {velocity} m/s')
 
+            # 获取当前表格的行数
+            row = self.tableWidget.rowCount()
+            # 插入新的行
+            self.tableWidget.insertRow(row)
+
             row_data = {
-                "序号": str(i),
+                "序号": str(row + 1),
+                "测速轮次": str(self.cur_measure_round),
                 "流速值": str(velocity),
-                "平均测速位置": "AAA",
-                "开始测速位置": "BBB",
-                "结束测速位置": "CCC",
-                "开始测速时间": "DDD",
-                "开始测速时间": "EEE",
-                "结束测速时间": "FFF",
-                "坡面名称": "GGG",
-                "视频名称": "HHH",
+                "平均测速位置": f'{measure_x},{measure_y}',
+                "平均测速时刻": time_measure_velocity,
+                "开始测速位置": f'{real_x1},{real_y1}',
+                "结束测速位置": f'{real_x2},{real_y2}',
+                "开始测速时间": time_start_measure,
+                "结束测速时间": time_end_measure,
+                "坡面名称": video_measurer.slope_name,
+                "视频名称": video_measurer.video_name,
             }
 
-            row = i
+            self.temp_measures.append(row_data)
+
+            # row = i
             for col, header in enumerate(self.table_headers):
                 item = QTableWidgetItem(row_data[header])
 
                 self.tableWidget.setItem(row, col, item)
 
-                print(f"行{row +1}, 列{col+1}插入{row_data[header]}")
+                # print(f"行{row +1}, 列{col+1}插入{row_data[header]}")
+
+    def add_measures_to_result_sheet(self):
+        if self.temp_measures is None or len(self.temp_measures) == 0:
+            self.show_alter_dialog('尚未存在测量结果，如法添加到最终结果表中')
+            return
+
+        for row_data in self.temp_measures:
+            # 获取当前表格的行数
+            row = self.tableWidgetResult.rowCount()
+            # 插入新的行
+            self.tableWidgetResult.insertRow(row)
+
+            for col, header in enumerate(self.table_headers):
+                item = QTableWidgetItem(row_data[header])
+                self.tableWidgetResult.setItem(row, col, item)
+
+            # 保存本次测量结果到最终记录中去
+            self.video_measurer.result_measures.append(row_data)
+
+        # 添加到测速表后删除临时表中的内容
+        self.clear_current_measures()
+
+        # 每添加到测速表中后，算测速轮次加一
+        self.cur_measure_round += 1
+
+    def export_measures_to_csv(self):
+        # 设置默认路径为桌面
+        default_path = "~/测速文件"
+
+        # 弹出文件创建对话框
+        file_path, _ = QFileDialog.getSaveFileName(self.centralwidget, "导出到文件", default_path, "CSV Files (*.csv)")
+
+        # 打印选择的文件路径
+        print("选择的文件路径:", file_path)
+
+        if file_path is None or file_path == '':
+            return
+
+        save_result = self.video_measurer.export_measures_to_csv(file_path)
+        if save_result:
+            self.show_alter_dialog("保存成功")
+        else:
+            self.show_alter_dialog("保存失败")
 
 
     def init_table_view(self):
-
         table_widget = self.tableWidget
         # 设置表格的行数和列数
-        table_widget.setRowCount(1)
+        # table_widget.setRowCount(10)
         table_widget.setColumnCount(len(self.table_headers))
 
         # 添加表头标签
@@ -521,5 +648,16 @@ class Ui_MainWindow(object):
         # 设置表格自适应大小
         table_widget.resizeColumnsToContents()
         table_widget.resizeRowsToContents()
+
+        # 设置结果表
+        # 设置表格的行数和列数
+        self.tableWidgetResult.setColumnCount(len(self.table_headers))
+
+        # 添加表头标签
+        self.tableWidgetResult.setHorizontalHeaderLabels(self.table_headers)
+
+        # 设置表格自适应大小
+        self.tableWidgetResult.resizeColumnsToContents()
+        self.tableWidgetResult.resizeRowsToContents()
 
 

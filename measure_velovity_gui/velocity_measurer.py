@@ -3,6 +3,9 @@
 # @Author : moyear
 # @File : velocity_measurer.y
 # @Software : PyCharm
+import csv
+import os
+
 import cv2
 import numpy as np
 
@@ -10,6 +13,7 @@ import numpy as np
 class VelocityMeasure:
     video_path = None
     cap = None
+
 
     fps = 25
 
@@ -36,12 +40,24 @@ class VelocityMeasure:
     rotation_type = 0
 
     # 在第几帧开始冲刷的
-    frame_index_to_scouring = -1
+    frame_index_to_scouring = None
 
     measure_points = []
 
+    # 视频名称
+    video_name = ''
+
+    # 坡面名称
+    slope_name = ''
+
+    # 最终的测量结果
+    result_measures = []
+
     def init_with_video(self, vid_path):
         self.video_path = vid_path
+
+        self.video_name = os.path.basename(vid_path)
+
         self.cap = cv2.VideoCapture(vid_path)
 
         self.frame_width = int(self.cap.get(3))
@@ -50,6 +66,9 @@ class VelocityMeasure:
         self.pixel_to_mm = self.real_height / self.frame_height
 
         print("在纵向上，每个像素为{0}mm".format(self.pixel_to_mm))
+
+    def set_slope_name(self, name):
+        self.slope_name = name
 
     def read(self):
         ret, frame = self.cap.read()
@@ -192,6 +211,23 @@ class VelocityMeasure:
             return
         self.measure_points.append((x, y, frame_index))
 
+    def export_measures_to_csv(self, save_path):
+        if len(self.result_measures) == 0:
+            return False
+
+        print(self.result_measures)
+
+        save_to_csv(self.result_measures, save_path)
+        return True
+
+
+def save_to_csv(data, file_path):
+    keys = data[0].keys()
+
+    with open(file_path, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=keys)
+        writer.writeheader()
+        writer.writerows(data)
 
 
 def mask_by_hsv(image):

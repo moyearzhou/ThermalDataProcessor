@@ -27,9 +27,10 @@ class CustomGraphicsView(QGraphicsView):
             self.add_red_dot(pos.x(), pos.y())
 
     def add_red_dot(self, x, y):
+        self.clear_selected_point()
+
         self.selected_point = (x, y)
         # print("点击x：", x, "y: ", y)
-        self.clear_selected_point()
 
         red_dot = QGraphicsEllipseItem(x - 5, y - 5, 10, 10)
         red_dot.setBrush(QColor("red"))
@@ -42,6 +43,7 @@ class CustomGraphicsView(QGraphicsView):
         return self.selected_point
 
     def clear_selected_point(self):
+        self.selected_point = None
         scene = self.scene()
         if self.clicked_point is not None and self.clicked_point in scene.items():
             scene.removeItem(self.clicked_point)
