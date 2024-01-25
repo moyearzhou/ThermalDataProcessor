@@ -15,7 +15,8 @@ from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QFileDialog, QGraphicsScene, QMessageBox, QTableWidgetItem
 
 from measure_velovity_gui.ui.custom_graphic_view import CustomGraphicsView
-from measure_velovity_gui.utils.ui_helper import frame_to_time_progress, image_scale_to_graphic_view
+from measure_velovity_gui.utils.ui_helper import frame_to_time_progress, image_scale_to_graphic_view, \
+    extract_hsv_numbers, convert_to_number
 from measure_velovity_gui.velocity_measurer import VelocityMeasure
 
 
@@ -92,15 +93,15 @@ class Ui_MainWindow(object):
         self.edtDilation = QtWidgets.QTextEdit(self.groupBox)
         self.edtDilation.setGeometry(QtCore.QRect(310, 60, 104, 31))
         self.edtDilation.setObjectName("edtDilation")
-        self.edtUpperHSV = QtWidgets.QTextEdit(self.groupBox)
-        self.edtUpperHSV.setGeometry(QtCore.QRect(70, 20, 104, 31))
-        self.edtUpperHSV.setObjectName("edtUpperHSV")
+        self.edtLowerHSV = QtWidgets.QTextEdit(self.groupBox)
+        self.edtLowerHSV.setGeometry(QtCore.QRect(70, 20, 104, 31))
+        self.edtLowerHSV.setObjectName("edtLowerHSV")
         self.label_4 = QtWidgets.QLabel(self.groupBox)
         self.label_4.setGeometry(QtCore.QRect(10, 30, 54, 12))
         self.label_4.setObjectName("label_4")
-        self.edtLowerHSV = QtWidgets.QTextEdit(self.groupBox)
-        self.edtLowerHSV.setGeometry(QtCore.QRect(310, 20, 104, 31))
-        self.edtLowerHSV.setObjectName("edtLowerHSV")
+        self.edtUpperHSV = QtWidgets.QTextEdit(self.groupBox)
+        self.edtUpperHSV.setGeometry(QtCore.QRect(310, 20, 104, 31))
+        self.edtUpperHSV.setObjectName("edtUpperHSV")
         self.label_9 = QtWidgets.QLabel(self.groupBox)
         self.label_9.setGeometry(QtCore.QRect(10, 70, 54, 12))
         self.label_9.setObjectName("label_9")
@@ -215,22 +216,22 @@ class Ui_MainWindow(object):
                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                            "p, li { white-space: pre-wrap; }\n"
                                            "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-                                           "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">2</p></body></html>"))
-        self.label_5.setText(_translate("MainWindow", "hsv下限"))
+                                           "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">1</p></body></html>"))
+        self.label_5.setText(_translate("MainWindow", "hsv上限"))
         self.edtDilation.setHtml(_translate("MainWindow",
                                             "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                             "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                             "p, li { white-space: pre-wrap; }\n"
                                             "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">5</p></body></html>"))
-        self.edtUpperHSV.setHtml(_translate("MainWindow",
+        self.edtLowerHSV.setHtml(_translate("MainWindow",
                                             "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                             "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                             "p, li { white-space: pre-wrap; }\n"
                                             "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
                                             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">100,50,20</p></body></html>"))
-        self.label_4.setText(_translate("MainWindow", "hsv上限"))
-        self.edtLowerHSV.setHtml(_translate("MainWindow",
+        self.label_4.setText(_translate("MainWindow", "hsv下限"))
+        self.edtUpperHSV.setHtml(_translate("MainWindow",
                                             "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                             "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                             "p, li { white-space: pre-wrap; }\n"
@@ -322,6 +323,8 @@ class Ui_MainWindow(object):
         self.btnClearSetting_3.clicked.connect(self.set_init_scouring)
         # 设置坡面名称
         self.btnSetSlopeName.clicked.connect(self.set_slope_name)
+        # 应用边缘检测参数
+        self.btnApplyDetection.clicked.connect(self.apply_edge_detection)
 
         self.slider.valueChanged.connect(self.slider_listener)  # 设置值改变时的槽函数
         # 快进按钮
@@ -433,6 +436,41 @@ class Ui_MainWindow(object):
 
         # 设置播放进度
         self.update_progress_text()
+
+    def apply_edge_detection(self):
+        if self.video_measurer.video_path == '':
+            self.show_alter_dialog('尚未导入视频')
+            return
+
+        txt_time_erosion = self.edtErosion.toPlainText()
+        txt_time_dilation = self.edtDilation.toPlainText()
+
+        txt_hsv_lower = self.edtLowerHSV.toPlainText()
+        txt_hsv_upper = self.edtUpperHSV.toPlainText()
+
+        hsv_lower = extract_hsv_numbers(txt_hsv_lower)
+        hsv_upper = extract_hsv_numbers(txt_hsv_upper)
+
+        if len(hsv_lower) == 0 or len(hsv_upper) == 0:
+            self.show_alter_dialog('hsv范围设置有误')
+            return
+
+        time_erosion = convert_to_number(txt_time_erosion)
+        time_dilation = convert_to_number(txt_time_dilation)
+
+        if time_erosion < 0 or time_dilation < 0:
+            self.show_alter_dialog('腐蚀或膨胀次数设置有误')
+            return
+
+        self.video_measurer.hsv_lower = hsv_lower
+        self.video_measurer.hsv_upper = hsv_upper
+
+        self.video_measurer.times_erosion = time_erosion
+        self.video_measurer.times_dilation = time_dilation
+
+        # 应用完成马上更新画面
+        self.update_images()
+
 
     def add_current_measure_point(self):
         selected_point = self.imgCal.get_selected_point()
@@ -617,6 +655,10 @@ class Ui_MainWindow(object):
         self.cur_measure_round += 1
 
     def export_measures_to_csv(self):
+        if len(self.video_measurer.result_measures) == 0:
+            self.show_alter_dialog('不存在已记录的测速结果！')
+            return
+
         # 设置默认路径为桌面
         default_path = "~/测速文件"
 

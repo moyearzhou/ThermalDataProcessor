@@ -53,3 +53,27 @@ def image_scale_to_graphic_view(image, graphicView: QGraphicsView):
 
     # Set QGraphicsScene in QGraphicsView
     graphicView.setScene(scene)
+
+
+def extract_hsv_numbers(text):
+    numbers = text.split(',')
+    result = []
+
+    for number in numbers:
+        number = number.strip()  # 去除空格
+        try:
+            number = int(number)
+            if 0 <= number <= 255:
+                result.append(number)
+        except ValueError:
+            pass
+    print(result)
+    return result
+
+
+def convert_to_number(text):
+    try:
+        number = int(text)
+        return number
+    except ValueError:
+        return -1

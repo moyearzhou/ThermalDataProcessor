@@ -14,7 +14,6 @@ class VelocityMeasure:
     video_path = None
     cap = None
 
-
     fps = 25
 
     frame_width = -1
@@ -52,6 +51,18 @@ class VelocityMeasure:
 
     # 最终的测量结果
     result_measures = []
+
+    # 腐蚀操作次数
+    times_erosion = 1
+
+    # 膨胀操作次数
+    times_dilation = 5
+
+    # hsv的下限范围
+    hsv_lower = [100, 50, 20]
+
+    # hsv的范围上限
+    hsv_upper = [150, 255, 255]
 
     def init_with_video(self, vid_path):
         self.video_path = vid_path
@@ -119,7 +130,7 @@ class VelocityMeasure:
         根据蓝色提取出坡面中可能为染色的区域
         :return:
         '''
-        return mask_by_hsv(self.cur_frame)
+        return self.mask_by_hsv(self.cur_frame)
 
     def get_rgb_image(self):
         '''
@@ -186,12 +197,12 @@ class VelocityMeasure:
 
     def get_mask_after_morphological_operate(self):
         mask = self.get_blue_contours()
-        mask = morphological_operate(mask)
+        mask = self.morphological_operate(mask)
         return mask
 
     def get_blue_contours(self):
-        mask = mask_by_hsv(self.cur_frame)
-        return find_blue_contours(mask)
+        mask = self.mask_by_hsv(self.cur_frame)
+        return self.find_blue_contours(mask)
 
     def clear_measure_points(self):
         self.measure_points = []
@@ -220,64 +231,52 @@ class VelocityMeasure:
         save_to_csv(self.result_measures, save_path)
         return True
 
+    def mask_by_hsv(self, image):
+        '''
+        提取坡面中的蓝色部分区域
+        :param image:
+        :return:
+        '''
+        # 进行高斯滤波
+        # 第二个参数是高斯核的大小，必须是奇数
+        # 第三个参数是高斯核的标准差，在X和Y方向上，如果设为0，则函数会自动计算
+        blurred_img = cv2.GaussianBlur(image, (5, 5), 0)
 
-def save_to_csv(data, file_path):
-    keys = data[0].keys()
+        # Convert the image to HSV (Hue, Saturation, Value) color space
+        image_hsv = cv2.cvtColor(blurred_img, cv2.COLOR_BGR2HSV)
 
-    with open(file_path, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=keys)
-        writer.writeheader()
-        writer.writerows(data)
+        # Define the range of blue color in HSV
+        lower_blue = np.array(self.hsv_lower)
+        upper_blue = np.array(self.hsv_upper)
 
+        # Threshold the HSV image to get only blue colors
+        mask = cv2.inRange(image_hsv, lower_blue, upper_blue)
+        return mask
 
-def mask_by_hsv(image):
-    '''
-    提取坡面中的蓝色部分区域
-    :param image:
-    :return:
-    '''
-    # 进行高斯滤波
-    # 第二个参数是高斯核的大小，必须是奇数
-    # 第三个参数是高斯核的标准差，在X和Y方向上，如果设为0，则函数会自动计算
-    blurred_img = cv2.GaussianBlur(image, (5, 5), 0)
+    def morphological_operate(self, mask):
+        '''
+        :param mask:
+        :return:
+        '''
+        # Perform a series of erosions and dilations on the mask to remove small blobs
+        kernel = np.ones((3, 3), np.uint8)
 
-    # Convert the image to HSV (Hue, Saturation, Value) color space
-    image_hsv = cv2.cvtColor(blurred_img, cv2.COLOR_BGR2HSV)
+        mask = cv2.erode(mask, kernel, iterations=self.times_erosion)
+        mask = cv2.dilate(mask, kernel, iterations=self.times_dilation)
+        return mask
 
-    # Define the range of blue color in HSV
-    lower_blue = np.array([100, 50, 20])
-    upper_blue = np.array([150, 255, 255])
+    def find_blue_contours(self, mask):
+        '''
+        通过腐蚀和膨胀等形态学操作识别对轮廓进行过滤
+        :param mask:
+        :return:
+        '''
+        mask = self.morphological_operate(mask)
+        # cv2.imshow("mask", mask)
 
-    # Threshold the HSV image to get only blue colors
-    mask = cv2.inRange(image_hsv, lower_blue, upper_blue)
-    return mask
-
-
-def morphological_operate(mask):
-    '''
-    :param mask:
-    :return:
-    '''
-    # Perform a series of erosions and dilations on the mask to remove small blobs
-    kernel = np.ones((3, 3), np.uint8)
-
-    mask = cv2.erode(mask, kernel, iterations=1)
-    mask = cv2.dilate(mask, kernel, iterations=5)
-    return mask
-
-
-def find_blue_contours(mask):
-    '''
-    通过腐蚀和膨胀等形态学操作识别对轮廓进行过滤
-    :param mask:
-    :return:
-    '''
-    mask = morphological_operate(mask)
-    # cv2.imshow("mask", mask)
-
-    # Find contours in the masked image
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    return contours
+        # Find contours in the masked image
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        return contours
 
 
 def get_contour_centers(contours):
@@ -298,3 +297,12 @@ def get_center_point(contour):
     if M['m00'] != 0:
         center = (int(M['m10'] / M['m00']), int(M['m01'] / M['m00']))
     return center
+
+
+def save_to_csv(data, file_path):
+    keys = data[0].keys()
+
+    with open(file_path, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=keys)
+        writer.writeheader()
+        writer.writerows(data)
