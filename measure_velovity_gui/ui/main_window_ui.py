@@ -30,15 +30,14 @@ class Ui_MainWindow(object):
 
     cur_measure_round = 0
 
+    cur_rotation_type = 0
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1308, 1031)
         MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonTextOnly)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.btnClearPoints = QtWidgets.QPushButton(self.centralwidget)
-        self.btnClearPoints.setGeometry(QtCore.QRect(1200, 20, 81, 31))
-        self.btnClearPoints.setObjectName("btnClearPoints")
         self.slider = QtWidgets.QSlider(self.centralwidget)
         self.slider.setGeometry(QtCore.QRect(40, 920, 341, 16))
         self.slider.setOrientation(QtCore.Qt.Horizontal)
@@ -61,8 +60,8 @@ class Ui_MainWindow(object):
         self.labelProgress = QtWidgets.QLabel(self.centralwidget)
         self.labelProgress.setGeometry(QtCore.QRect(400, 920, 81, 16))
         self.labelProgress.setObjectName("labelProgress")
-        self.imgVideo = QtWidgets.QGraphicsView(self.centralwidget)
-        self.imgVideo.setGeometry(QtCore.QRect(20, 640, 491, 261))
+        self.imgVideo = CustomGraphicsView(self.centralwidget)
+        self.imgVideo.setGeometry(QtCore.QRect(20, 640, 480, 270))
         self.imgVideo.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.imgVideo.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.imgVideo.setObjectName("imgVideo")
@@ -72,53 +71,53 @@ class Ui_MainWindow(object):
         self.imgOri.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.imgOri.setObjectName("imgOri")
         self.imgMask = QtWidgets.QGraphicsView(self.centralwidget)
-        self.imgMask.setGeometry(QtCore.QRect(190, 20, 150, 600))
+        self.imgMask.setGeometry(QtCore.QRect(180, 20, 150, 600))
         self.imgMask.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.imgMask.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.imgMask.setObjectName("imgMask")
         self.imgCal = CustomGraphicsView(self.centralwidget)
-        self.imgCal.setGeometry(QtCore.QRect(360, 20, 150, 600))
+        self.imgCal.setGeometry(QtCore.QRect(340, 20, 150, 600))
         self.imgCal.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.imgCal.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.imgCal.setObjectName("imgCal")
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QtCore.QRect(560, 180, 431, 141))
+        self.groupBox.setGeometry(QtCore.QRect(970, 10, 311, 131))
         self.groupBox.setObjectName("groupBox")
         self.edtErosion = QtWidgets.QTextEdit(self.groupBox)
-        self.edtErosion.setGeometry(QtCore.QRect(70, 60, 104, 31))
+        self.edtErosion.setGeometry(QtCore.QRect(70, 90, 71, 31))
         self.edtErosion.setObjectName("edtErosion")
         self.label_5 = QtWidgets.QLabel(self.groupBox)
-        self.label_5.setGeometry(QtCore.QRect(240, 30, 54, 12))
+        self.label_5.setGeometry(QtCore.QRect(160, 60, 54, 12))
         self.label_5.setObjectName("label_5")
         self.edtDilation = QtWidgets.QTextEdit(self.groupBox)
-        self.edtDilation.setGeometry(QtCore.QRect(310, 60, 104, 31))
+        self.edtDilation.setGeometry(QtCore.QRect(220, 90, 81, 31))
         self.edtDilation.setObjectName("edtDilation")
         self.edtLowerHSV = QtWidgets.QTextEdit(self.groupBox)
-        self.edtLowerHSV.setGeometry(QtCore.QRect(70, 20, 104, 31))
+        self.edtLowerHSV.setGeometry(QtCore.QRect(70, 50, 71, 31))
         self.edtLowerHSV.setObjectName("edtLowerHSV")
         self.label_4 = QtWidgets.QLabel(self.groupBox)
-        self.label_4.setGeometry(QtCore.QRect(10, 30, 54, 12))
+        self.label_4.setGeometry(QtCore.QRect(10, 60, 54, 12))
         self.label_4.setObjectName("label_4")
         self.edtUpperHSV = QtWidgets.QTextEdit(self.groupBox)
-        self.edtUpperHSV.setGeometry(QtCore.QRect(310, 20, 104, 31))
+        self.edtUpperHSV.setGeometry(QtCore.QRect(220, 50, 81, 31))
         self.edtUpperHSV.setObjectName("edtUpperHSV")
         self.label_9 = QtWidgets.QLabel(self.groupBox)
-        self.label_9.setGeometry(QtCore.QRect(10, 70, 54, 12))
+        self.label_9.setGeometry(QtCore.QRect(10, 100, 54, 12))
         self.label_9.setObjectName("label_9")
         self.label_8 = QtWidgets.QLabel(self.groupBox)
-        self.label_8.setGeometry(QtCore.QRect(240, 70, 54, 12))
+        self.label_8.setGeometry(QtCore.QRect(160, 100, 54, 12))
         self.label_8.setObjectName("label_8")
         self.btnApplyDetection = QtWidgets.QPushButton(self.groupBox)
-        self.btnApplyDetection.setGeometry(QtCore.QRect(320, 100, 91, 31))
+        self.btnApplyDetection.setGeometry(QtCore.QRect(210, 10, 91, 31))
         self.btnApplyDetection.setObjectName("btnApplyDetection")
         self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QtCore.QRect(560, 20, 431, 151))
+        self.groupBox_2.setGeometry(QtCore.QRect(560, 20, 401, 151))
         self.groupBox_2.setObjectName("groupBox_2")
         self.btnClearSetting_3 = QtWidgets.QPushButton(self.groupBox_2)
-        self.btnClearSetting_3.setGeometry(QtCore.QRect(320, 100, 91, 31))
+        self.btnClearSetting_3.setGeometry(QtCore.QRect(290, 100, 91, 31))
         self.btnClearSetting_3.setObjectName("btnClearSetting_3")
         self.edtSlopeName = QtWidgets.QTextEdit(self.groupBox_2)
-        self.edtSlopeName.setGeometry(QtCore.QRect(70, 60, 241, 31))
+        self.edtSlopeName.setGeometry(QtCore.QRect(70, 60, 191, 31))
         self.edtSlopeName.setObjectName("edtSlopeName")
         self.labelTimeScouring = QtWidgets.QLabel(self.groupBox_2)
         self.labelTimeScouring.setGeometry(QtCore.QRect(10, 110, 131, 16))
@@ -130,20 +129,23 @@ class Ui_MainWindow(object):
         self.labelFileName.setGeometry(QtCore.QRect(10, 20, 151, 31))
         self.labelFileName.setObjectName("labelFileName")
         self.btnImportVideo = QtWidgets.QPushButton(self.groupBox_2)
-        self.btnImportVideo.setGeometry(QtCore.QRect(330, 20, 81, 31))
+        self.btnImportVideo.setGeometry(QtCore.QRect(300, 20, 81, 31))
         self.btnImportVideo.setObjectName("btnImportVideo")
         self.btnSetSlopeName = QtWidgets.QPushButton(self.groupBox_2)
-        self.btnSetSlopeName.setGeometry(QtCore.QRect(320, 60, 91, 31))
+        self.btnSetSlopeName.setGeometry(QtCore.QRect(290, 60, 91, 31))
         self.btnSetSlopeName.setObjectName("btnSetSlopeName")
-        self.btnAddPoint = QtWidgets.QPushButton(self.centralwidget)
-        self.btnAddPoint.setGeometry(QtCore.QRect(1110, 20, 81, 31))
-        self.btnAddPoint.setObjectName("btnAddPoint")
         self.groupBox_4 = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_4.setGeometry(QtCore.QRect(1030, 60, 251, 251))
+        self.groupBox_4.setGeometry(QtCore.QRect(970, 150, 311, 161))
         self.groupBox_4.setObjectName("groupBox_4")
         self.listWidget = QtWidgets.QListWidget(self.groupBox_4)
-        self.listWidget.setGeometry(QtCore.QRect(0, 20, 251, 231))
+        self.listWidget.setGeometry(QtCore.QRect(0, 50, 311, 111))
         self.listWidget.setObjectName("listWidget")
+        self.btnAddPoint = QtWidgets.QPushButton(self.groupBox_4)
+        self.btnAddPoint.setGeometry(QtCore.QRect(120, 10, 81, 31))
+        self.btnAddPoint.setObjectName("btnAddPoint")
+        self.btnClearPoints = QtWidgets.QPushButton(self.groupBox_4)
+        self.btnClearPoints.setGeometry(QtCore.QRect(220, 10, 81, 31))
+        self.btnClearPoints.setObjectName("btnClearPoints")
         self.tableWidget = QtWidgets.QTableWidget(self.centralwidget)
         self.tableWidget.setGeometry(QtCore.QRect(560, 360, 721, 191))
         self.tableWidget.setObjectName("tableWidget")
@@ -169,6 +171,31 @@ class Ui_MainWindow(object):
         self.btnExportMeasures = QtWidgets.QPushButton(self.centralwidget)
         self.btnExportMeasures.setGeometry(QtCore.QRect(1190, 560, 91, 31))
         self.btnExportMeasures.setObjectName("btnExportMeasures")
+        self.groupBox_3 = QtWidgets.QGroupBox(self.centralwidget)
+        self.groupBox_3.setGeometry(QtCore.QRect(560, 180, 401, 131))
+        self.groupBox_3.setObjectName("groupBox_3")
+        self.labelFileName_2 = QtWidgets.QLabel(self.groupBox_3)
+        self.labelFileName_2.setGeometry(QtCore.QRect(10, 20, 151, 31))
+        self.labelFileName_2.setObjectName("labelFileName_2")
+        self.btnSelectControls = QtWidgets.QPushButton(self.groupBox_3)
+        self.btnSelectControls.setGeometry(QtCore.QRect(200, 20, 91, 41))
+        self.btnSelectControls.setObjectName("btnSelectControls")
+        self.btnApplyTransform = QtWidgets.QPushButton(self.groupBox_3)
+        self.btnApplyTransform.setGeometry(QtCore.QRect(300, 90, 91, 31))
+        self.btnApplyTransform.setObjectName("btnApplyTransform")
+        self.btnClearControls = QtWidgets.QPushButton(self.groupBox_3)
+        self.btnClearControls.setGeometry(QtCore.QRect(300, 20, 91, 41))
+        self.btnClearControls.setObjectName("btnClearControls")
+        self.labelFileName_3 = QtWidgets.QLabel(self.groupBox_3)
+        self.labelFileName_3.setGeometry(QtCore.QRect(10, 60, 61, 31))
+        self.labelFileName_3.setObjectName("labelFileName_3")
+        self.comboBoxRotation = QtWidgets.QComboBox(self.groupBox_3)
+        self.comboBoxRotation.setGeometry(QtCore.QRect(70, 60, 67, 22))
+        self.comboBoxRotation.setObjectName("comboBoxRotation")
+        self.comboBoxRotation.addItem("")
+        self.comboBoxRotation.addItem("")
+        self.comboBoxRotation.addItem("")
+        self.comboBoxRotation.addItem("")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1308, 22))
@@ -203,7 +230,6 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "薄层流流速测量系统"))
-        self.btnClearPoints.setText(_translate("MainWindow", "清空测速点"))
         self.btnPlay.setText(_translate("MainWindow", "播放"))
         self.btnStepping.setText(_translate("MainWindow", "步进5帧"))
         self.btnStepBack.setText(_translate("MainWindow", "步退5帧"))
@@ -239,7 +265,7 @@ class Ui_MainWindow(object):
                                             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">150,255,255</p></body></html>"))
         self.label_9.setText(_translate("MainWindow", "腐蚀次数"))
         self.label_8.setText(_translate("MainWindow", "膨胀次数"))
-        self.btnApplyDetection.setText(_translate("MainWindow", "应用"))
+        self.btnApplyDetection.setText(_translate("MainWindow", "应用检测"))
         self.groupBox_2.setTitle(_translate("MainWindow", "基本信息"))
         self.btnClearSetting_3.setText(_translate("MainWindow", "设置当前时间"))
         self.edtSlopeName.setHtml(_translate("MainWindow",
@@ -253,19 +279,37 @@ class Ui_MainWindow(object):
         self.labelFileName.setText(_translate("MainWindow", "当前视频:null"))
         self.btnImportVideo.setText(_translate("MainWindow", "导入视频"))
         self.btnSetSlopeName.setText(_translate("MainWindow", "设置坡面名称"))
-        self.btnAddPoint.setText(_translate("MainWindow", "添加测速点"))
         self.groupBox_4.setTitle(_translate("MainWindow", "测速点列表"))
+        self.btnAddPoint.setText(_translate("MainWindow", "添加测速点"))
+        self.btnClearPoints.setText(_translate("MainWindow", "清空测速点"))
         self.label.setText(_translate("MainWindow", "本次测速结果"))
         self.btnCalVelocity.setText(_translate("MainWindow", "测算流速"))
         self.btnAddToResults.setText(_translate("MainWindow", "添加到记录表"))
         self.label_2.setText(_translate("MainWindow", "测速记录表"))
         self.btnExportMeasures.setText(_translate("MainWindow", "导出测速结果"))
+        self.groupBox_3.setTitle(_translate("MainWindow", "坡面ROI提取"))
+        self.labelFileName_2.setText(_translate("MainWindow", "提取状态:未提取"))
+        self.btnSelectControls.setText(_translate("MainWindow", "选择控制点"))
+        self.btnApplyTransform.setText(_translate("MainWindow", "应用变换"))
+        self.btnClearControls.setText(_translate("MainWindow", "清空控制点"))
+        self.labelFileName_3.setText(_translate("MainWindow", "视频旋转:"))
+        self.comboBoxRotation.setItemText(0, _translate("MainWindow", "原始"))
+        self.comboBoxRotation.setItemText(1, _translate("MainWindow", "90°"))
+        self.comboBoxRotation.setItemText(2, _translate("MainWindow", "180°"))
+        self.comboBoxRotation.setItemText(3, _translate("MainWindow", "270°"))
         self.menu.setTitle(_translate("MainWindow", "菜单"))
         self.menu_2.setTitle(_translate("MainWindow", "识别"))
         self.actionImportVideo.setText(_translate("MainWindow", "导入视频"))
         self.actionimportVelocity.setText(_translate("MainWindow", "导出流速记录表"))
         self.actionextract.setText(_translate("MainWindow", "设置hsv颜色过滤"))
         self.actiona.setText(_translate("MainWindow", "形态学参数"))
+
+    def init_view(self, MainWindow):
+        # 初始化表格布局
+        self.init_table_view()
+
+        # 允许多选
+        self.imgVideo.multi_select = True
 
     def show_alter_dialog(self, msg):
         # 创建一个警告对话框
@@ -325,6 +369,15 @@ class Ui_MainWindow(object):
         self.btnSetSlopeName.clicked.connect(self.set_slope_name)
         # 应用边缘检测参数
         self.btnApplyDetection.clicked.connect(self.apply_edge_detection)
+
+        # 清空控制点
+        self.btnClearControls.clicked.connect(self.clear_control_points)
+
+        # 应用变换
+        self.btnApplyTransform.clicked.connect(self.apply_transform)
+
+        # 旋转变换
+        self.comboBoxRotation.currentIndexChanged.connect(self.rotation_type_changed)
 
         self.slider.valueChanged.connect(self.slider_listener)  # 设置值改变时的槽函数
         # 快进按钮
@@ -394,20 +447,24 @@ class Ui_MainWindow(object):
         self.labelProgress.setText(str_progress)
 
     def update_images(self):
+        # 显示视频图像
+        image_video = self.video_measurer.get_video_image()
+        image_scale_to_graphic_view(image_video, self.imgVideo)
+
         # 显示原始rgb图像
-        image = self.video_measurer.get_rgb_image()
+        image = self.video_measurer.get_transformed_rgb_image()
         image_scale_to_graphic_view(image, self.imgOri)
 
         # 显示带轮廓的图片
-        image_with_contours = self.video_measurer.get_image_with_contours()
-        image_with_contours = cv2.cvtColor(image_with_contours, cv2.COLOR_BGR2RGB)
+        image_with_contours = self.video_measurer.get_transformed_image_with_contours()
+        # image_with_contours = cv2.cvtColor(image_with_contours, cv2.COLOR_BGR2RGB)
         image_scale_to_graphic_view(image_with_contours, self.imgMask)
 
         # 更新测量界面的图像
         self.update_measure_image()
 
     def update_measure_image(self):
-        image_with_measure_points = self.video_measurer.get_image_with_measure_points()
+        image_with_measure_points = self.video_measurer.get_transformed_image_with_measure_points()
         image_scale_to_graphic_view(image_with_measure_points, self.imgCal)
 
     def import_file(self):
@@ -471,6 +528,9 @@ class Ui_MainWindow(object):
         # 应用完成马上更新画面
         self.update_images()
 
+    def rotation_type_changed(self):
+        self.cur_rotation_type = self.comboBoxRotation.currentIndex()
+        # print(self.cur_rotation_type)
 
     def add_current_measure_point(self):
         selected_point = self.imgCal.get_selected_point()
@@ -481,11 +541,13 @@ class Ui_MainWindow(object):
 
         # print("测速点x：", selected_point[0], "y: ", selected_point[1])
 
+        # todo 考虑视频旋转的情况
+
         x = selected_point[0]
         y = selected_point[1]
 
-        frame_width = self.video_measurer.frame_width
-        frame_height = self.video_measurer.frame_height
+        frame_width = self.video_measurer.frame_width_transformed
+        frame_height = self.video_measurer.frame_height_transformed
 
         view_width = self.imgCal.width()
         view_height = self.imgCal.height()
@@ -497,8 +559,8 @@ class Ui_MainWindow(object):
         frame_index = self.video_measurer.cur_frame_index
         self.video_measurer.add_measure_point(real_x, real_y, frame_index)
 
-        # 清空选中的点
-        self.imgCal.clear_selected_point()
+        # 清空场景内选中的点
+        self.imgCal.clear_selected_points()
 
         # 插入到测速点列表
         frame_index = self.video_measurer.cur_frame_index
@@ -509,6 +571,42 @@ class Ui_MainWindow(object):
 
         # 更新测量界面的画面
         self.update_measure_image()
+
+    def clear_control_points(self):
+        self.imgVideo.clear_selected_points()
+
+    def apply_transform(self):
+        # 视频旋转
+        self.video_measurer.rotation_type = self.cur_rotation_type
+
+        selected_point = self.imgVideo.get_selected_points()
+
+        if selected_point is None or len(selected_point) != 6:
+            self.show_alter_dialog('尚未选择控制点，或者控制点数量不是6个')
+            return
+
+        # print(selected_point)
+
+        frame_width = self.video_measurer.frame_width
+        frame_height = self.video_measurer.frame_height
+
+        view_width = self.imgVideo.width()
+        view_height = self.imgVideo.height()
+
+        real_points = []
+        for point in selected_point:
+            x = point[0]
+            y = point[1]
+
+            # 由graphic view坐标位置到的真实图像坐标位置的转换
+            real_x = int(x * frame_width / view_width)
+            real_y = int(y * frame_height / view_height)
+
+            real_points.append((real_x, real_y))
+
+        self.video_measurer.set_transform_points(real_points)
+
+        self.update_images()
 
     def clear_measure_points(self):
         self.video_measurer.clear_measure_points()
@@ -538,7 +636,7 @@ class Ui_MainWindow(object):
         # 第几帧开始冲刷
         frame_index_to_scouring = video_measurer.frame_index_to_scouring
 
-        # todo 判断是否设置了开始冲刷实验
+        # 判断是否设置了开始冲刷实验
         if frame_index_to_scouring is None:
             self.show_alter_dialog('尚未设置起始冲刷时间！请先设置后再开始计算流速')
             return

@@ -39,8 +39,8 @@ def get_center_point(contour):
 def video_extract():
     video_measurer.init_with_video(video_path)
 
-    frame_width = video_measurer.frame_width
-    frame_height = video_measurer.frame_height
+    frame_width = video_measurer.frame_width_transformed
+    frame_height = video_measurer.frame_height_transformed
 
     # frame_width = int(cap.get(3))
     # frame_height = int(cap.get(4))
@@ -72,7 +72,7 @@ def video_extract():
         # todo 对这些轮廓进行一定过滤
         # contours_centers = get_contour_centers(contours)
 
-        contour_image = video_measurer.get_image_with_contours()
+        contour_image = video_measurer.get_transformed_image_with_contours()
 
         # todo 根据轮廓计算流速
         # 计算流速

@@ -13,27 +13,27 @@ out_path = r"../output/output_dem.tif"
 point_cloud = o3d.io.read_point_cloud(path_ply)
 
 # 获取点云坐标
-points = point_cloud.points
+selected_points = point_cloud.selected_points
 
 # 创建TIN
-tri = Delaunay(points)
+tri = Delaunay(selected_points)
 
 # 定义DEM网格范围和分辨率
-x_min, x_max = min(points[:, 0]), max(points[:, 0])
-y_min, y_max = min(points[:, 1]), max(points[:, 1])
+x_min, x_max = min(selected_points[:, 0]), max(selected_points[:, 0])
+y_min, y_max = min(selected_points[:, 1]), max(selected_points[:, 1])
 resolution = 1.0  # DEM网格分辨率
 
 # 生成DEM数据
 x = np.arange(x_min, x_max, resolution)
 y = np.arange(y_min, y_max, resolution)
 X, Y = np.meshgrid(x, y)
-Z = griddata(points[:, :2], points[:, 2], (X, Y), method='linear')
+Z = griddata(selected_points[:, :2], selected_points[:, 2], (X, Y), method='linear')
 
 # 显示进度条
-progress_bar = tqdm(total=len(points))
+progress_bar = tqdm(total=len(selected_points))
 
 # 模拟处理每个点
-for point in points:
+for point in selected_points:
     # 处理点云数据...
     # 更新进度条
     progress_bar.update(1)

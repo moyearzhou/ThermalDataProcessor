@@ -19,10 +19,10 @@ out_path = r"../output/output_dem.tif"
 cloud = PyntCloud.from_file(path_ply)
 
 # 获取点云数据的 x, y, z 值
-points = cloud.points
-x = points["x"]
-y = points["y"]
-z = points["z"]
+selected_points = cloud.points
+x = selected_points["x"]
+y = selected_points["y"]
+z = selected_points["z"]
 
 # 创建一个空的 DEM 数据
 dem = np.zeros((int(y.max() - y.min() + 1), int(x.max() - x.min() + 1)))

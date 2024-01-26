@@ -3,17 +3,14 @@
 # @Author : moyear
 # @File : video_perspective_transform.y
 # @Software : PyCharm
-# 读取视频文件
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
 
 fps = 25
 
 video_out_path = "output_video.mp4"
 
-# video_path = r"E:\Moyear\文档\冲刷实验\20231226_第二次冲刷实验\1 热红外成像\yuv\20231226161512_5643.mp4"
-video_path = r"E:\Users\Moyear\Desktop\测试视频\20240105120009_4222_Trim.mp4"
+video_path = r"E:\Moyear\文档\冲刷实验\测试数据\20240105_3_第三段冲刷俯视_Trim.mp4"
 cap = cv2.VideoCapture(video_path)
 
 # todo 计算选择后的长宽

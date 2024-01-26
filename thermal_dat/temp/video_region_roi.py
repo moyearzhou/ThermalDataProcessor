@@ -61,7 +61,7 @@ def get_croped_image(image_path):
     return image
 
 # 定义全局变量
-points = []
+selected_points = []
 selected_points = []
 
 
@@ -70,7 +70,7 @@ image = cv2.imread(image_path)
 
 
 def mouse_callback(event, x, y, flags, param):
-    global points, selected_points
+    global selected_points, selected_points
     if event == cv2.EVENT_LBUTTONDOWN:
         print("点击坐标：", x, y)
 

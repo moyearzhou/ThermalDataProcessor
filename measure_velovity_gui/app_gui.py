@@ -46,7 +46,9 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     # 绑定监听器
     ui.bindListener(MainWindow)
-    # 初始化表格布局
-    ui.init_table_view()
+
+    # 初始化界面
+    ui.init_view(MainWindow)
+
     MainWindow.show()
     sys.exit(my_app.exec_())

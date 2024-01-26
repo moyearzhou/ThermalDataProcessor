@@ -30,6 +30,9 @@ def image_scale_to_graphic_view(image, graphicView: QGraphicsView):
     :param graphicView:
     :return:
     '''
+    if image is None:
+        return
+
     view_width = graphicView.width()
     view_height = graphicView.height()
 
@@ -77,3 +80,7 @@ def convert_to_number(text):
         return number
     except ValueError:
         return -1
+
+
+def get_real_point(image, graphicView: QGraphicsView):
+    return (0, 0)

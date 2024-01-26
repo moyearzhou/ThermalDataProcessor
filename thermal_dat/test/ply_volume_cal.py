@@ -28,7 +28,7 @@ def align_point_clouds(source, target):
 
 def build_tin(point_cloud):
     print("========构建TIN")
-    points = np.asarray(point_cloud.points)
+    points = np.asarray(point_cloud.selected_points)
     # 2D Delaunay三角化，假设点云已经投影到2D平面
     tri = Delaunay(points[:, :2])
     return tri
@@ -70,6 +70,6 @@ aligned_cloud_a = align_point_clouds(cloud_a, cloud_b)
 tin = build_tin(aligned_cloud_a)
 
 # 计算体积变化
-volume_change = calculate_volume_change(tin, np.asarray(aligned_cloud_a.points), np.asarray(cloud_b.points))
+volume_change = calculate_volume_change(tin, np.asarray(aligned_cloud_a.selected_points), np.asarray(cloud_b.selected_points))
 
 print(f"总体积变化: {volume_change / 1000} ml")
