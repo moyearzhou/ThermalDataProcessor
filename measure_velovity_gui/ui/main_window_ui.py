@@ -11,6 +11,7 @@ import os
 
 import cv2
 from PyQt5 import QtCore, QtGui, QtWidgets, Qt
+from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QFileDialog, QGraphicsScene, QMessageBox, QTableWidgetItem
 
@@ -31,6 +32,10 @@ class Ui_MainWindow(object):
     cur_measure_round = 0
 
     cur_rotation_type = 0
+
+    isPlaying = False
+
+    timer = None
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -388,6 +393,9 @@ class Ui_MainWindow(object):
         self.btnStepping.clicked.connect(self.stepping)
         # 步退按钮
         self.btnStepBack.clicked.connect(self.stepBack)
+
+        # 播放按钮
+        self.btnPlay.clicked.connect(self.play_or_pause_video)
 
         # 添加测速点按钮
         self.btnAddPoint.clicked.connect(self.add_current_measure_point)
@@ -807,4 +815,46 @@ class Ui_MainWindow(object):
         self.tableWidgetResult.resizeColumnsToContents()
         self.tableWidgetResult.resizeRowsToContents()
 
+    def play_or_pause_video(self):
+        if not self.video_measurer.is_init():
+            return
 
+        if self.timer is None:
+            self.init_video_play()
+        else:
+            self.isPlaying = not self.isPlaying
+
+        if self.isPlaying:
+            self.btnPlay.setText("暂停")
+        else:
+            self.btnPlay.setText("播放")
+
+    def init_video_play(self):
+        # 创建一个 QTimer
+        self.timer = QTimer()
+        # 设置定时器每 40 毫秒（相当于 25 FPS）触发一次
+        self.timer.setInterval(1000 // self.video_measurer.fps)
+        # 连接定时器的 timeout 信号到我们的 update_image 函数
+        self.timer.timeout.connect(self.auto_play)
+        # 启动定时器
+        self.timer.start()
+
+        self.isPlaying = True
+
+    def auto_play(self):
+        if not self.isPlaying:
+            return
+
+        if not self.video_measurer.is_init():
+            return
+
+        # 如果超过总长度，则自动暂停
+        if self.video_measurer.cur_frame_index >= self.video_measurer.get_total_frames():
+            self.isPlaying = False
+            return
+
+        self.video_measurer.read()
+        self.update_images()
+
+        # 更新进度
+        self.update_slider_value()
