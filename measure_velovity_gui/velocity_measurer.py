@@ -92,6 +92,12 @@ class VelocityMeasure:
         self.is_transform_applied = False
         self.points_for_transform = []
 
+    def is_init(self):
+        if self.video_path is None or self.video_path == "" or self.cap is None:
+            return False
+
+        return True
+
     def set_slope_name(self, name):
         self.slope_name = name
 

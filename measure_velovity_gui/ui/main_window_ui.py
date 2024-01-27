@@ -23,7 +23,7 @@ from measure_velovity_gui.velocity_measurer import VelocityMeasure
 class Ui_MainWindow(object):
     video_measurer = VelocityMeasure()
 
-    table_headers = ["序号", "测速轮次", "流速值", "平均测速位置", "平均测速时刻", "开始测速位置", "结束测速位置", "开始测速时间", "结束测速时间", "坡面名称", "视频名称"]
+    table_headers = ["序号", "测速轮次", "流速值", "测速视频时间", "平均测速位置", "平均测速时刻", "开始测速位置", "结束测速位置", "开始测速时间", "结束测速时间", "坡面名称", "视频名称"]
 
     # 临时的测量结果
     temp_measures = []
@@ -417,6 +417,9 @@ class Ui_MainWindow(object):
     def slider_listener(self):
         progress = self.slider.value()
 
+        if not self.video_measurer.is_init():
+            return
+
         total_frames = self.video_measurer.get_total_frames()
         frame_to_skip = int(total_frames * progress / 100)
         # print("skip to frame: " + str(frame_to_skip))  # 打印当前值
@@ -686,6 +689,9 @@ class Ui_MainWindow(object):
             time_start_measure = frame_to_time_progress((frame_index_1 - frame_index_to_scouring), fps)
             # 结束测速点的真实时间
             time_end_measure = frame_to_time_progress((frame_index_2 - frame_index_to_scouring), fps)
+
+            # 测速的视频时间
+            time_measure_in_video = frame_to_time_progress((frame_index_1 + frame_index_2) / 2, fps)
             # 平均测速时刻
             time_measure_velocity = frame_to_time_progress(((frame_index_2 + frame_index_1) / 2 - frame_index_to_scouring), fps)
 
@@ -708,6 +714,7 @@ class Ui_MainWindow(object):
                 "序号": str(row + 1),
                 "测速轮次": str(self.cur_measure_round),
                 "流速值": str(velocity),
+                "测速视频时间": time_measure_in_video,
                 "平均测速位置": f'{measure_x},{measure_y}',
                 "平均测速时刻": time_measure_velocity,
                 "开始测速位置": f'{real_x1},{real_y1}',
