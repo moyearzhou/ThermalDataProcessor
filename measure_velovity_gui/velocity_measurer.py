@@ -217,7 +217,6 @@ class VelocityMeasure:
 
         # 对视频进行进行旋转操作
         transformed_image_rgb = self.get_rotated_image(transformed_image_rgb)
-
         return transformed_image_rgb
 
     def get_transformed_image_with_contours(self):
@@ -324,6 +323,16 @@ class VelocityMeasure:
             print('测速点的时间帧不合理')
             return
         self.measure_points.append((x, y, frame_index))
+
+    def delete_measure_point_at(self, index):
+        if self.measure_points is None or len(self.measure_points) == 0:
+            return
+
+        if index < 0 or index >= len(self.measure_points):
+            print(f"要删除出的测速点位置不对: {index}")
+
+        self.measure_points.remove(self.measure_points[index])
+
 
     def export_measures_to_csv(self, save_path):
         if len(self.result_measures) == 0:

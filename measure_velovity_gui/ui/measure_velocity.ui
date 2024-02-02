@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1266</width>
+    <width>1336</width>
     <height>1031</height>
    </rect>
   </property>
@@ -32,6 +32,14 @@
     <widget class="QWidget" name="scrollAreaWidgetContents">
      <property name="enabled">
       <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1399</width>
+       <height>739</height>
+      </rect>
      </property>
      <widget class="QWidget" name="widget_3" native="true">
       <property name="geometry">
@@ -244,7 +252,7 @@
       <widget class="QPushButton" name="btnAddToResults">
        <property name="geometry">
         <rect>
-         <x>190</x>
+         <x>290</x>
          <y>10</y>
          <width>91</width>
          <height>21</height>
@@ -262,6 +270,19 @@
          <width>751</width>
          <height>151</height>
         </rect>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="btnDeleteCurMeasure">
+       <property name="geometry">
+        <rect>
+         <x>190</x>
+         <y>10</y>
+         <width>91</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>清空本次测速</string>
        </property>
       </widget>
      </widget>
@@ -381,113 +402,100 @@ p, li { white-space: pre-wrap; }
        <attribute name="title">
         <string>ROI提取</string>
        </attribute>
-       <widget class="QGroupBox" name="groupBox_3">
+       <widget class="QPushButton" name="btnClearControls">
+        <property name="geometry">
+         <rect>
+          <x>210</x>
+          <y>10</y>
+          <width>61</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>清空点</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btnSelectControls">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>10</y>
+          <width>81</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>选择控制点</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="labelFileName_2">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>20</y>
-          <width>321</width>
-          <height>91</height>
+          <y>10</y>
+          <width>151</width>
+          <height>21</height>
          </rect>
         </property>
-        <property name="title">
-         <string>坡面ROI提取</string>
+        <property name="text">
+         <string>提取状态:未提取</string>
         </property>
-        <widget class="QLabel" name="labelFileName_2">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>20</y>
-           <width>151</width>
-           <height>21</height>
-          </rect>
-         </property>
+       </widget>
+       <widget class="QComboBox" name="comboBoxRotation">
+        <property name="geometry">
+         <rect>
+          <x>70</x>
+          <y>50</y>
+          <width>67</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <item>
          <property name="text">
-          <string>提取状态:未提取</string>
+          <string>原始</string>
          </property>
-        </widget>
-        <widget class="QPushButton" name="btnSelectControls">
-         <property name="geometry">
-          <rect>
-           <x>110</x>
-           <y>20</y>
-           <width>81</width>
-           <height>21</height>
-          </rect>
-         </property>
+        </item>
+        <item>
          <property name="text">
-          <string>选择控制点</string>
+          <string>90°</string>
          </property>
-        </widget>
-        <widget class="QPushButton" name="btnApplyTransform">
-         <property name="geometry">
-          <rect>
-           <x>200</x>
-           <y>50</y>
-           <width>61</width>
-           <height>21</height>
-          </rect>
-         </property>
+        </item>
+        <item>
          <property name="text">
-          <string>应用变换</string>
+          <string>180°</string>
          </property>
-        </widget>
-        <widget class="QPushButton" name="btnClearControls">
-         <property name="geometry">
-          <rect>
-           <x>200</x>
-           <y>20</y>
-           <width>61</width>
-           <height>21</height>
-          </rect>
-         </property>
+        </item>
+        <item>
          <property name="text">
-          <string>清空点</string>
+          <string>270°</string>
          </property>
-        </widget>
-        <widget class="QLabel" name="labelFileName_3">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>50</y>
-           <width>61</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>视频旋转:</string>
-         </property>
-        </widget>
-        <widget class="QComboBox" name="comboBoxRotation">
-         <property name="geometry">
-          <rect>
-           <x>70</x>
-           <y>50</y>
-           <width>67</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <item>
-          <property name="text">
-           <string>原始</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>90°</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>180°</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>270°</string>
-          </property>
-         </item>
-        </widget>
+        </item>
+       </widget>
+       <widget class="QLabel" name="labelFileName_3">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>50</y>
+          <width>61</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>视频旋转:</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btnApplyTransform">
+        <property name="geometry">
+         <rect>
+          <x>210</x>
+          <y>50</y>
+          <width>61</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>应用变换</string>
+        </property>
        </widget>
       </widget>
       <widget class="QWidget" name="tab_2">
@@ -498,7 +506,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>200</x>
-          <y>90</y>
+          <y>100</y>
           <width>71</width>
           <height>21</height>
          </rect>
@@ -512,8 +520,8 @@ p, li { white-space: pre-wrap; }
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>301</width>
-          <height>71</height>
+          <width>271</width>
+          <height>91</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout">
@@ -605,6 +613,9 @@ p, li { white-space: pre-wrap; }
           <height>101</height>
          </rect>
         </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::CustomContextMenu</enum>
+        </property>
        </widget>
        <widget class="QPushButton" name="btnAddPoint">
         <property name="geometry">
@@ -658,7 +669,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1266</width>
+     <width>1336</width>
      <height>22</height>
     </rect>
    </property>
@@ -704,4 +715,7 @@ p, li { white-space: pre-wrap; }
  </widget>
  <resources/>
  <connections/>
+ <slots>
+  <signal>showMeasurePointsItemMenu()</signal>
+ </slots>
 </ui>
