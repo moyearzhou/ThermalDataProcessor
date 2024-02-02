@@ -40,6 +40,7 @@ if __name__ == "__main__":
     # 设置异常处理钩子
     sys.excepthook = handle_exception
 
+    # 高分辨率适配
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
 
     my_app = QtWidgets.QApplication(sys.argv)
