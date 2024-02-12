@@ -12,8 +12,8 @@ import os
 import cv2
 from PyQt5 import QtCore, QtGui, QtWidgets, Qt
 from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtWidgets import QFileDialog, QGraphicsScene, QMessageBox, QTableWidgetItem
+from PyQt5.QtGui import QImage, QPixmap, QCursor
+from PyQt5.QtWidgets import QFileDialog, QGraphicsScene, QMessageBox, QTableWidgetItem, QAction, QMenu
 
 from measure_velovity_gui.ui.custom_graphic_view import CustomGraphicsView
 from measure_velovity_gui.utils.ui_helper import frame_to_time_progress, image_scale_to_graphic_view, \
@@ -39,7 +39,7 @@ class Ui_MainWindow(object):
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1266, 1031)
+        MainWindow.resize(1336, 1031)
         MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonTextOnly)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -49,6 +49,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.scrollAreaWidgetContents.setEnabled(True)
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 1399, 739))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.widget_3 = QtWidgets.QWidget(self.scrollAreaWidgetContents)
         self.widget_3.setGeometry(QtCore.QRect(70, 20, 481, 611))
@@ -126,13 +127,16 @@ class Ui_MainWindow(object):
         self.btnCalVelocity.setGeometry(QtCore.QRect(100, 10, 81, 21))
         self.btnCalVelocity.setObjectName("btnCalVelocity")
         self.btnAddToResults = QtWidgets.QPushButton(self.widget)
-        self.btnAddToResults.setGeometry(QtCore.QRect(190, 10, 91, 21))
+        self.btnAddToResults.setGeometry(QtCore.QRect(290, 10, 91, 21))
         self.btnAddToResults.setObjectName("btnAddToResults")
         self.tableWidget = QtWidgets.QTableWidget(self.widget)
         self.tableWidget.setGeometry(QtCore.QRect(0, 40, 751, 151))
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(0)
         self.tableWidget.setRowCount(0)
+        self.btnDeleteCurMeasure = QtWidgets.QPushButton(self.widget)
+        self.btnDeleteCurMeasure.setGeometry(QtCore.QRect(190, 10, 91, 21))
+        self.btnDeleteCurMeasure.setObjectName("btnDeleteCurMeasure")
         self.tabWidget_2 = QtWidgets.QTabWidget(self.scrollAreaWidgetContents)
         self.tabWidget_2.setGeometry(QtCore.QRect(1040, 30, 281, 171))
         self.tabWidget_2.setObjectName("tabWidget_2")
@@ -162,39 +166,36 @@ class Ui_MainWindow(object):
         self.tabWidget_2.addTab(self.tabWidget_2Page1, "")
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
-        self.groupBox_3 = QtWidgets.QGroupBox(self.tab)
-        self.groupBox_3.setGeometry(QtCore.QRect(10, 20, 321, 91))
-        self.groupBox_3.setObjectName("groupBox_3")
-        self.labelFileName_2 = QtWidgets.QLabel(self.groupBox_3)
-        self.labelFileName_2.setGeometry(QtCore.QRect(10, 20, 151, 21))
-        self.labelFileName_2.setObjectName("labelFileName_2")
-        self.btnSelectControls = QtWidgets.QPushButton(self.groupBox_3)
-        self.btnSelectControls.setGeometry(QtCore.QRect(110, 20, 81, 21))
-        self.btnSelectControls.setObjectName("btnSelectControls")
-        self.btnApplyTransform = QtWidgets.QPushButton(self.groupBox_3)
-        self.btnApplyTransform.setGeometry(QtCore.QRect(200, 50, 61, 21))
-        self.btnApplyTransform.setObjectName("btnApplyTransform")
-        self.btnClearControls = QtWidgets.QPushButton(self.groupBox_3)
-        self.btnClearControls.setGeometry(QtCore.QRect(200, 20, 61, 21))
+        self.btnClearControls = QtWidgets.QPushButton(self.tab)
+        self.btnClearControls.setGeometry(QtCore.QRect(210, 10, 61, 21))
         self.btnClearControls.setObjectName("btnClearControls")
-        self.labelFileName_3 = QtWidgets.QLabel(self.groupBox_3)
-        self.labelFileName_3.setGeometry(QtCore.QRect(10, 50, 61, 31))
-        self.labelFileName_3.setObjectName("labelFileName_3")
-        self.comboBoxRotation = QtWidgets.QComboBox(self.groupBox_3)
+        self.btnSelectControls = QtWidgets.QPushButton(self.tab)
+        self.btnSelectControls.setGeometry(QtCore.QRect(120, 10, 81, 21))
+        self.btnSelectControls.setObjectName("btnSelectControls")
+        self.labelFileName_2 = QtWidgets.QLabel(self.tab)
+        self.labelFileName_2.setGeometry(QtCore.QRect(10, 10, 151, 21))
+        self.labelFileName_2.setObjectName("labelFileName_2")
+        self.comboBoxRotation = QtWidgets.QComboBox(self.tab)
         self.comboBoxRotation.setGeometry(QtCore.QRect(70, 50, 67, 22))
         self.comboBoxRotation.setObjectName("comboBoxRotation")
         self.comboBoxRotation.addItem("")
         self.comboBoxRotation.addItem("")
         self.comboBoxRotation.addItem("")
         self.comboBoxRotation.addItem("")
+        self.labelFileName_3 = QtWidgets.QLabel(self.tab)
+        self.labelFileName_3.setGeometry(QtCore.QRect(10, 50, 61, 31))
+        self.labelFileName_3.setObjectName("labelFileName_3")
+        self.btnApplyTransform = QtWidgets.QPushButton(self.tab)
+        self.btnApplyTransform.setGeometry(QtCore.QRect(210, 50, 61, 21))
+        self.btnApplyTransform.setObjectName("btnApplyTransform")
         self.tabWidget_2.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
         self.btnApplyDetection = QtWidgets.QPushButton(self.tab_2)
-        self.btnApplyDetection.setGeometry(QtCore.QRect(200, 90, 71, 21))
+        self.btnApplyDetection.setGeometry(QtCore.QRect(200, 100, 71, 21))
         self.btnApplyDetection.setObjectName("btnApplyDetection")
         self.gridLayoutWidget = QtWidgets.QWidget(self.tab_2)
-        self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 0, 301, 71))
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 0, 271, 91))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
@@ -228,6 +229,7 @@ class Ui_MainWindow(object):
         self.tab_3.setObjectName("tab_3")
         self.listWidget = QtWidgets.QListWidget(self.tab_3)
         self.listWidget.setGeometry(QtCore.QRect(0, 0, 271, 101))
+        self.listWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.listWidget.setObjectName("listWidget")
         self.btnAddPoint = QtWidgets.QPushButton(self.tab_3)
         self.btnAddPoint.setGeometry(QtCore.QRect(90, 110, 81, 21))
@@ -244,7 +246,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1266, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1336, 22))
         self.menubar.setObjectName("menubar")
         self.menu = QtWidgets.QMenu(self.menubar)
         self.menu.setObjectName("menu")
@@ -288,6 +290,7 @@ class Ui_MainWindow(object):
         self.label.setText(_translate("MainWindow", "本次测速结果"))
         self.btnCalVelocity.setText(_translate("MainWindow", "测算流速"))
         self.btnAddToResults.setText(_translate("MainWindow", "添加到记录表"))
+        self.btnDeleteCurMeasure.setText(_translate("MainWindow", "清空本次测速"))
         self.btnClearSetting_3.setText(_translate("MainWindow", "设置当前时间"))
         self.edtSlopeName.setHtml(_translate("MainWindow",
                                              "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
@@ -302,16 +305,15 @@ class Ui_MainWindow(object):
         self.btnSetSlopeName.setText(_translate("MainWindow", "设置名称"))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tabWidget_2Page1),
                                     _translate("MainWindow", "基本信息"))
-        self.groupBox_3.setTitle(_translate("MainWindow", "坡面ROI提取"))
-        self.labelFileName_2.setText(_translate("MainWindow", "提取状态:未提取"))
-        self.btnSelectControls.setText(_translate("MainWindow", "选择控制点"))
-        self.btnApplyTransform.setText(_translate("MainWindow", "应用变换"))
         self.btnClearControls.setText(_translate("MainWindow", "清空点"))
-        self.labelFileName_3.setText(_translate("MainWindow", "视频旋转:"))
+        self.btnSelectControls.setText(_translate("MainWindow", "选择控制点"))
+        self.labelFileName_2.setText(_translate("MainWindow", "提取状态:未提取"))
         self.comboBoxRotation.setItemText(0, _translate("MainWindow", "原始"))
         self.comboBoxRotation.setItemText(1, _translate("MainWindow", "90°"))
         self.comboBoxRotation.setItemText(2, _translate("MainWindow", "180°"))
         self.comboBoxRotation.setItemText(3, _translate("MainWindow", "270°"))
+        self.labelFileName_3.setText(_translate("MainWindow", "视频旋转:"))
+        self.btnApplyTransform.setText(_translate("MainWindow", "应用变换"))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab), _translate("MainWindow", "ROI提取"))
         self.btnApplyDetection.setText(_translate("MainWindow", "应用检测"))
         self.label_4.setText(_translate("MainWindow", "hsv下限"))
@@ -449,11 +451,17 @@ class Ui_MainWindow(object):
         # 测速按钮
         self.btnCalVelocity.clicked.connect(self.perform_measure_velocity)
 
+        # 清空本次测速
+        self.btnDeleteCurMeasure.clicked.connect(self.clear_current_measures)
+
         # 添加到记录表
         self.btnAddToResults.clicked.connect(self.add_measures_to_result_sheet)
 
         # 导出测速文件
         self.btnExportMeasures.clicked.connect(self.export_measures_to_csv)
+
+        # 测速点列表
+        self.listWidget.customContextMenuRequested.connect(self.show_list_widget_item_menu)
 
     def set_slope_name(self):
         name = self.edtSlopeName.toPlainText()
@@ -512,7 +520,6 @@ class Ui_MainWindow(object):
 
         # 显示带轮廓的图片
         image_with_contours = self.video_measurer.get_transformed_image_with_contours()
-        # image_with_contours = cv2.cvtColor(image_with_contours, cv2.COLOR_BGR2RGB)
         image_scale_to_graphic_view(image_with_contours, self.imgMask)
 
         # 更新测量界面的图像
@@ -528,7 +535,7 @@ class Ui_MainWindow(object):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_path, ok = QFileDialog.getOpenFileName(self.centralwidget, "File", default_path,
-                                                   "All Files (*);;Video Files (*.mp4)", options=options)
+                                                   "Video Files (*.mp4)", options=options)
 
         if file_path is None or file_path == "":
             return
@@ -858,6 +865,34 @@ class Ui_MainWindow(object):
         # 设置表格自适应大小
         self.tableWidgetResult.resizeColumnsToContents()
         self.tableWidgetResult.resizeRowsToContents()
+
+    def deleteItem(self):
+        # 删除选中的列表项
+        selected_items = self.listWidget.selectedItems()
+        for item in selected_items:
+            row = self.listWidget.row(item)
+            # 删除测速点
+            self.video_measurer.delete_measure_point_at(row)
+
+            self.listWidget.takeItem(row)
+            print(f'删除第{row}行')
+
+        # 更新界面
+        self.update_images()
+
+    def show_list_widget_item_menu(self):
+
+        # 创建一个QMenu对象
+        context_menu = QMenu(self.centralwidget)
+        # 创建菜单项
+        delete_action = QAction("删除", self.centralwidget)
+        delete_action.triggered.connect(self.deleteItem)
+
+        # 将菜单项添加到菜单中
+        context_menu.addAction(delete_action)
+
+        # 在指定位置显示菜单
+        context_menu.exec_(QCursor.pos())
 
     def play_or_pause_video(self):
         if not self.video_measurer.is_init():
