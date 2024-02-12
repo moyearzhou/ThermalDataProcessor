@@ -8,8 +8,8 @@ import numpy as np
 from scipy.spatial import KDTree
 from scipy.spatial import Delaunay
 
-path_ply_a = r"E:\Users\Moyear\Desktop\3d\TEST0.ply"
-path_ply_b = r"E:\Users\Moyear\Desktop\3d\TEST3.ply"
+path_ply_a = r"E:\Users\Moyear\Desktop\3d\TEST_0.ply"
+path_ply_b = r"E:\Users\Moyear\Desktop\3d\TEST_1.ply"
 
 
 def load_point_cloud(filename):
@@ -18,6 +18,7 @@ def load_point_cloud(filename):
 
 
 def align_point_clouds(source, target):
+
     print("========对齐点云数据")
     # 这里需要一个对齐算法，例如ICP或其他
     # 这里只是一个占位符，实际实现将更复杂
@@ -28,7 +29,7 @@ def align_point_clouds(source, target):
 
 def build_tin(point_cloud):
     print("========构建TIN")
-    points = np.asarray(point_cloud.selected_points)
+    points = np.asarray(point_cloud.points)
     # 2D Delaunay三角化，假设点云已经投影到2D平面
     tri = Delaunay(points[:, :2])
     return tri
@@ -70,6 +71,6 @@ aligned_cloud_a = align_point_clouds(cloud_a, cloud_b)
 tin = build_tin(aligned_cloud_a)
 
 # 计算体积变化
-volume_change = calculate_volume_change(tin, np.asarray(aligned_cloud_a.selected_points), np.asarray(cloud_b.selected_points))
+volume_change = calculate_volume_change(tin, np.asarray(aligned_cloud_a.points), np.asarray(cloud_b.points))
 
 print(f"总体积变化: {volume_change / 1000} ml")
