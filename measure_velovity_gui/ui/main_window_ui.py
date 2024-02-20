@@ -12,8 +12,9 @@ import os
 import cv2
 from PyQt5 import QtCore, QtGui, QtWidgets, Qt
 from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QImage, QPixmap, QCursor
-from PyQt5.QtWidgets import QFileDialog, QGraphicsScene, QMessageBox, QTableWidgetItem, QAction, QMenu
+from PyQt5.QtGui import QImage, QPixmap, QCursor, QKeySequence
+from PyQt5.QtWidgets import QFileDialog, QGraphicsScene, QMessageBox, QTableWidgetItem, QAction, QMenu, QTableWidget, \
+    QShortcut, QApplication
 
 from measure_velovity_gui.ui.custom_graphic_view import CustomGraphicsView
 from measure_velovity_gui.utils.ui_helper import frame_to_time_progress, image_scale_to_graphic_view, \
@@ -54,7 +55,7 @@ class Ui_MainWindow(object):
         self.widget_3 = QtWidgets.QWidget(self.scrollAreaWidgetContents)
         self.widget_3.setGeometry(QtCore.QRect(70, 20, 481, 611))
         self.widget_3.setObjectName("widget_3")
-        self.imgOri = QtWidgets.QGraphicsView(self.widget_3)
+        self.imgOri = CustomGraphicsView(self.widget_3)
         self.imgOri.setGeometry(QtCore.QRect(0, 10, 152, 599))
         self.imgOri.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.imgOri.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -114,6 +115,7 @@ class Ui_MainWindow(object):
         self.btnExportMeasures.setObjectName("btnExportMeasures")
         self.tableWidgetResult = QtWidgets.QTableWidget(self.widget_2)
         self.tableWidgetResult.setGeometry(QtCore.QRect(0, 30, 751, 181))
+        self.tableWidgetResult.setSelectionMode(QtWidgets.QAbstractItemView.ContiguousSelection)
         self.tableWidgetResult.setObjectName("tableWidgetResult")
         self.tableWidgetResult.setColumnCount(0)
         self.tableWidgetResult.setRowCount(0)
@@ -131,6 +133,7 @@ class Ui_MainWindow(object):
         self.btnAddToResults.setObjectName("btnAddToResults")
         self.tableWidget = QtWidgets.QTableWidget(self.widget)
         self.tableWidget.setGeometry(QtCore.QRect(0, 40, 751, 151))
+        self.tableWidget.setSelectionMode(QtWidgets.QAbstractItemView.ContiguousSelection)
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(0)
         self.tableWidget.setRowCount(0)
@@ -195,7 +198,7 @@ class Ui_MainWindow(object):
         self.btnApplyDetection.setGeometry(QtCore.QRect(200, 100, 71, 21))
         self.btnApplyDetection.setObjectName("btnApplyDetection")
         self.gridLayoutWidget = QtWidgets.QWidget(self.tab_2)
-        self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 0, 271, 91))
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 0, 271, 138))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
@@ -361,6 +364,8 @@ class Ui_MainWindow(object):
 
         # 允许多选
         self.imgVideo.multi_select = True
+        # 初始化table widget
+        # self.init_table_widget()
 
     def show_alter_dialog(self, msg):
         # 创建一个警告对话框
