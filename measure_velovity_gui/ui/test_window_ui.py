@@ -8,7 +8,7 @@ from measure_velovity_gui.ui.measure_velocity import Ui_MainWindow
 # sys.excepthook = handle_exception
 
 # 高分辨率适配
-QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+# QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
 
 my_app = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()
@@ -18,7 +18,7 @@ ui.setupUi(MainWindow)
 # ui.bindListener(MainWindow)
 
 # 初始化界面
-# ui.init_view(MainWindow)
+ui.init()
 
 MainWindow.show()
 sys.exit(my_app.exec_())
