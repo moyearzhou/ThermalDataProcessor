@@ -39,7 +39,8 @@ class VelocityMeasure:
     # 像素到毫米的比例，根据实际情况调整
     pixel_to_mm = -1
 
-    rotation_type = 0
+    # 视频旋转类型
+    rotation_type = 1
 
     # 在第几帧开始冲刷的
     frame_index_to_scouring = None
@@ -92,6 +93,14 @@ class VelocityMeasure:
         self.is_transform_applied = False
         self.points_for_transform = []
 
+    def get_frame_width(self):
+        frame_width = int(self.cap.get(3))
+        return frame_width
+
+    def get_frame_height(self):
+        frame_height = int(self.cap.get(4))
+        return frame_height
+
     def is_init(self):
         if self.video_path is None or self.video_path == "" or self.cap is None:
             return False
@@ -122,6 +131,9 @@ class VelocityMeasure:
             image_roi = self.perform_perspective_correction(frame, self.points_for_transform)
             self.cur_frame_transformed_rgb = cv2.cvtColor(image_roi, cv2.COLOR_BGRA2RGB)
 
+            # if self.rotation_type == 1:
+            #     self.cur_frame_transformed_rgb = cv2.rotate(self.cur_frame_transformed_rgb, cv2.ROTATE_90_CLOCKWISE)
+
         self.cur_frame_index += 1
         return ret, frame
 
@@ -129,11 +141,11 @@ class VelocityMeasure:
         rotate_image = image
         # 对视频进行一定的旋转操作，使水流自上而下流动
         if self.rotation_type == 1:
-            rotate_image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+            rotate_image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
         elif self.rotation_type == 2:
             rotate_image = cv2.rotate(image, cv2.ROTATE_180)
         elif self.rotation_type == 3:
-            rotate_image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            rotate_image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
         return rotate_image
 
     def skip_to_frame(self, frame_num):
@@ -392,32 +404,73 @@ class VelocityMeasure:
 
     # Function to perform perspective correction
     def perform_perspective_correction(self, frame, selected_points):
-        # 对选择的6个点进行排序，顺序为：左上点、右上点、左中点、右中点、左下点、右下点
-        if not self.is_transformed_points_ordered:
-            selected_points = order_points(selected_points)
+        # # 对选择的6个点进行排序，顺序为：左上点、右上点、左中点、右中点、左下点、右下点
+        # if not self.is_transformed_points_ordered:
+        #     selected_points = order_points(selected_points)
 
         width = 200
         height = 800
 
         half_height = int(height / 2)
+        # half_width = int(width / 2)
 
-        src_points_upper = np.array([selected_points[0], selected_points[1], selected_points[2], selected_points[3]],
-                                    dtype='float32')
-        src_points_lower = np.array([selected_points[2], selected_points[3], selected_points[4], selected_points[5]],
-                                    dtype='float32')
+        ordered_points = selected_points
 
-        # Define destination points for upper and lower halves
-        dst_points = np.array([[0, 0], [width, 0], [0, half_height], [width, half_height]], dtype='float32')
+        transformed_image = None
+        if self.rotation_type == 0:
+            # 对选择的6个点进行排序，顺序为：左上点、右上点、左中点、右中点、左下点、右下点
+            if not self.is_transformed_points_ordered:
+                ordered_points = order_points(selected_points)
+                self.is_transformed_points_ordered = True
 
-        # Compute the perspective transform matrices for upper and lower halves
-        matrix_upper = cv2.getPerspectiveTransform(src_points_upper, dst_points)
-        matrix_lower = cv2.getPerspectiveTransform(src_points_lower, dst_points)
-        # Apply perspective transformation for upper and lower halves
-        transformed_upper = cv2.warpPerspective(frame, matrix_upper, (width, half_height))
-        transformed_lower = cv2.warpPerspective(frame, matrix_lower, (width, half_height))
+            src_points_upper = np.array([ordered_points[0], ordered_points[1], ordered_points[2], ordered_points[3]],
+                                        dtype='float32')
+            src_points_lower = np.array([ordered_points[2], ordered_points[3], ordered_points[4], ordered_points[5]],
+                                        dtype='float32')
 
-        # Concatenate the two halves
-        transformed_image = np.concatenate((transformed_upper, transformed_lower), axis=0)
+            # Define destination points for upper and lower halves
+            dst_points = np.array([[0, 0], [width, 0], [0, half_height], [width, half_height]], dtype='float32')
+
+            # Compute the perspective transform matrices for upper and lower halves
+            matrix_upper = cv2.getPerspectiveTransform(src_points_upper, dst_points)
+            matrix_lower = cv2.getPerspectiveTransform(src_points_lower, dst_points)
+            # Apply perspective transformation for upper and lower halves
+            transformed_upper = cv2.warpPerspective(frame, matrix_upper, (width, half_height))
+            transformed_lower = cv2.warpPerspective(frame, matrix_lower, (width, half_height))
+
+            # Concatenate the two halves
+            transformed_image = np.concatenate((transformed_upper, transformed_lower), axis=0)
+        elif self.rotation_type == 1:
+            # 对选择的6个点进行排序，顺序为：左上点、左下点、上中点、下中点、右上点、右下点
+            if not self.is_transformed_points_ordered:
+                ordered_points = order_points_clockwise(selected_points)
+                # print("=======")
+                # print(ordered_points)
+                # self.is_transformed_points_ordered = True
+
+            src_points_left = np.array(
+                [ordered_points[0], ordered_points[2], ordered_points[1], ordered_points[3]],
+                dtype='float32')
+            src_points_right = np.array(
+                [ordered_points[2], ordered_points[4], ordered_points[3], ordered_points[5]],
+                dtype='float32')
+
+            # Define destination points for upper and lower halves
+            dst_points = np.array([[0, 0], [half_height, 0], [0, width], [half_height, width]], dtype='float32')
+
+            # Compute the perspective transform matrices for upper and lower halves
+            matrix_left = cv2.getPerspectiveTransform(src_points_left, dst_points)
+            matrix_right = cv2.getPerspectiveTransform(src_points_right, dst_points)
+            # Apply perspective transformation for upper and lower halves
+            transformed_left = cv2.warpPerspective(frame, matrix_left, (half_height, width))
+            transformed_right = cv2.warpPerspective(frame, matrix_right, (half_height, width))
+
+            # cv2.imshow(transformed_left)
+            # cv2.waitKey(0)
+
+            # Concatenate the two halves
+            transformed_image = np.concatenate((transformed_left, transformed_right), axis=1)
+
         return transformed_image
 
 
@@ -471,3 +524,25 @@ def order_points(points):
     return sorted_points
 
 
+def order_points_clockwise(points):
+    '''
+    对选择的6个点进行排序，顺序为：左上点、上中点、右上点、左下点、下中点、右下点
+    :param points:
+    :return:
+    '''
+    # 按x坐标排序
+    points.sort(key=lambda point: point[0])
+
+    # 取出x坐标最小的两个点（左边），并按y坐标排序
+    left = sorted(points[:2], key=lambda point: point[1])
+
+    # 取出x坐标最大的两个点（右边），并按y坐标排序
+    right = sorted(points[-2:], key=lambda point: point[1])
+
+    # 剩余的点为中部，按y坐标排序
+    middle = sorted(points[2:4], key=lambda point: point[1])
+
+    # 将三组点合并成一个列表
+    sorted_points = left + middle + right
+    # print(sorted_points)
+    return sorted_points

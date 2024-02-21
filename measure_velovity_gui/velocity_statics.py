@@ -1,6 +1,6 @@
 import pandas as pd
 
-excel_path = r"D:\OneDrive\毕业论文\数据\原始_测速数据_B1.xlsx"
+excel_path = r"E:\OneDrive\毕业论文\数据\原始_测速数据_E3.xlsx"
 
 out_path = r".\out\output.csv"
 # 读取Excel文件中的所有工作表
