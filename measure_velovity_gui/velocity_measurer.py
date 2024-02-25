@@ -40,7 +40,7 @@ class VelocityMeasure:
     pixel_to_mm = -1
 
     # 视频旋转类型
-    rotation_type = 1
+    rotation_type = 0
 
     # 在第几帧开始冲刷的
     frame_index_to_scouring = None
@@ -417,7 +417,7 @@ class VelocityMeasure:
         ordered_points = selected_points
 
         transformed_image = None
-        if self.rotation_type == 0:
+        if self.rotation_type == 0 or self.rotation_type == 2:
             # 对选择的6个点进行排序，顺序为：左上点、右上点、左中点、右中点、左下点、右下点
             if not self.is_transformed_points_ordered:
                 ordered_points = order_points(selected_points)
@@ -464,9 +464,6 @@ class VelocityMeasure:
             # Apply perspective transformation for upper and lower halves
             transformed_left = cv2.warpPerspective(frame, matrix_left, (half_height, width))
             transformed_right = cv2.warpPerspective(frame, matrix_right, (half_height, width))
-
-            # cv2.imshow(transformed_left)
-            # cv2.waitKey(0)
 
             # Concatenate the two halves
             transformed_image = np.concatenate((transformed_left, transformed_right), axis=1)

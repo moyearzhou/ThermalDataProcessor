@@ -8,8 +8,8 @@ import numpy as np
 from scipy.spatial import KDTree
 from scipy.spatial import Delaunay
 
-path_ply_a = r"E:\Users\Moyear\Desktop\3d\TEST_0.ply"
-path_ply_b = r"E:\Users\Moyear\Desktop\3d\TEST_1.ply"
+path_ply_a = r"E:\Users\Moyear\Desktop\3d\TEST-0.ply"
+path_ply_b = r"E:\Users\Moyear\Desktop\3d\TEST-1.ply"
 
 
 def load_point_cloud(filename):
