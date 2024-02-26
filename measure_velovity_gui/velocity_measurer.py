@@ -419,9 +419,11 @@ class VelocityMeasure:
         transformed_image = None
         if self.rotation_type == 0 or self.rotation_type == 2:
             # 对选择的6个点进行排序，顺序为：左上点、右上点、左中点、右中点、左下点、右下点
+
+            print(self.rotation_type)
             if not self.is_transformed_points_ordered:
                 ordered_points = order_points(selected_points)
-                self.is_transformed_points_ordered = True
+                # self.is_transformed_points_ordered = True
 
             src_points_upper = np.array([ordered_points[0], ordered_points[1], ordered_points[2], ordered_points[3]],
                                         dtype='float32')
@@ -440,7 +442,7 @@ class VelocityMeasure:
 
             # Concatenate the two halves
             transformed_image = np.concatenate((transformed_upper, transformed_lower), axis=0)
-        elif self.rotation_type == 1:
+        elif self.rotation_type == 1 or self.rotation_type == 3:
             # 对选择的6个点进行排序，顺序为：左上点、左下点、上中点、下中点、右上点、右下点
             if not self.is_transformed_points_ordered:
                 ordered_points = order_points_clockwise(selected_points)
