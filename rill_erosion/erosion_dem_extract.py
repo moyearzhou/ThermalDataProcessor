@@ -8,6 +8,7 @@ import rasterio
 from rasterio.transform import from_origin
 from scipy.spatial import Delaunay
 import matplotlib.colors as mcolors
+from scipy.stats import linregress
 
 elevation_min = -100
 
@@ -261,6 +262,46 @@ def main():
     #     dst.write(dem_diff, 1)
 
 
+def boxcount(Z, k):
+    S = np.add.reduceat(
+        np.add.reduceat(Z, np.arange(0, Z.shape[0], k), axis=0),
+        np.arange(0, Z.shape[1], k), axis=1)
+    return len(np.where(S > 0)[0])
+
+
+def fractal_dimension(Z, threshold=0.9):
+    # Only for 2d image
+    assert (len(Z.shape) == 2)
+
+    # Transform Z into a binary array
+    Z = (Z < threshold)
+
+    p = min(Z.shape)
+    n = 2 ** np.floor(np.log(p) / np.log(2))
+    n = int(np.log(n) / np.log(2))
+    sizes = 2 ** np.arange(n, 1, -1)
+
+    # Box counting
+    counts = []
+    for size in sizes:
+        counts.append(boxcount(Z, size))
+
+    # Linear regression
+    coeffs = linregress(np.log(sizes), np.log(counts))
+    return -coeffs[0]
+
+
 if __name__ == "__main__":
     # main()
-    get_all_slope_image()
+    # get_all_slope_image()
+
+    path_base = r"E:\Users\Moyear\Desktop\3d\slopes\B1_0_20240102_A.ply"
+    path_target = r"E:\Users\Moyear\Desktop\3d\slopes\B1_4_20240102_A.ply"
+
+    dem_diff = cal_volume_change(path_base, path_target)
+
+    # 这里假设高程差异的最大值是阈值
+    fd = fractal_dimension(dem_diff, threshold=1)
+
+    print(f"分形维数: {fd}")
+
