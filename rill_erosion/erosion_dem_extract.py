@@ -5,6 +5,7 @@ import numpy as np
 import open3d as o3d
 import matplotlib.pyplot as plt
 import rasterio
+from plyfile import PlyData
 from rasterio.transform import from_origin
 from scipy.spatial import Delaunay
 import matplotlib.colors as mcolors
@@ -12,7 +13,7 @@ from scipy.stats import linregress
 
 elevation_min = -100
 
-elevation_max = 50
+elevation_max = 100
 
 
 def read_point_cloud(ply_file):
@@ -114,50 +115,29 @@ def get_detailed_slope_erosion_image(paths_ply):
 
         last = i
 
-    # 获取总侵蚀dem
-    path_base = paths_ply[0]
-    path_target = paths_ply[4]
+    # # 获取总侵蚀dem
+    # path_base = paths_ply[0]
+    # path_target = paths_ply[4]
+    #
+    # file_name_base = os.path.basename(path_base)
+    # file_name_target = os.path.basename(path_target)
+    #
+    # print("正在处理：", file_name_base, " - ", file_name_target, "的侵蚀地形dem")
+    #
+    # dem_diff = cal_volume_change(path_base, path_target)
+    # # 将dem图像进行旋转旋转90度，变成纵向
+    # dem_diff = np.rot90(dem_diff)
 
-    file_name_base = os.path.basename(path_base)
-    file_name_target = os.path.basename(path_target)
-
-    print("正在处理：", file_name_base, " - ", file_name_target, "的侵蚀地形dem")
-
-    dem_diff = cal_volume_change(path_base, path_target)
-    # 将dem图像进行旋转旋转90度，变成纵向
-    dem_diff = np.rot90(dem_diff)
-
-    colored_dem_255 = get_dem_image(dem_diff, elevation_min, elevation_max)
-    images_hstack = img_hstack(images_hstack, colored_dem_255)
+    # colored_dem_255 = get_dem_image(dem_diff, elevation_min, elevation_max)
+    # images_hstack = img_hstack(images_hstack, colored_dem_255)
 
     return images_hstack
 
 
-def get_all_slope_image():
+def get_slopes_ply_by_name(slope_name):
     dir_plys = r"E:\Users\Moyear\Desktop\3d\slopes"
 
-    slope_names = ['A0',
-                   'B1', 'B2', 'B3',
-                   'C1', 'C2', 'C3',
-                   'D1', 'D2', 'D3',
-                   'E1', 'E2', 'E3']
-
-    # for slope_name in slope_names:
-    #     # 初始化列表来保存文件路径
-    #     file_paths_list = []
-    #
-    #     # 遍历文件夹中的所有文件
-    #     for root, dirs, files in os.walk(dir_plys):
-    #         for file in files:
-    #             if file.startswith(slope_name) and file.endswith('.ply'):
-    #                 ply_file_path = os.path.join(root, file)
-    #                 file_paths_list.append(ply_file_path)
-    #
-    #     get_detailed_slope_erosion_image(file_paths_list)
-    #
-    #     return
-
-    slope_name = 'E2'
+    # slope_name = 'A0'
     # 初始化列表来保存文件路径
     file_paths_list = []
 
@@ -168,14 +148,8 @@ def get_all_slope_image():
                 ply_file_path = os.path.join(root, file)
                 file_paths_list.append(ply_file_path)
 
-    slopes_erosion = get_detailed_slope_erosion_image(file_paths_list)
+    return file_paths_list
 
-    # 使用opencv显示图像
-    slopes_erosion_bgr = cv2.cvtColor(slopes_erosion, cv2.COLOR_RGB2BGR)
-
-    # 使用OpenCV显示图像
-    cv2.imshow(slope_name, slopes_erosion_bgr)
-    cv2.waitKey(0)
 
 
 def img_hstack(image1, image2):
@@ -184,14 +158,8 @@ def img_hstack(image1, image2):
     if image1.shape[0] == image2.shape[0]:
         # 横向拼接两张图像
         result = np.hstack((image1, image2))
-
-        # # 显示拼接后的图像
-        # cv2.imshow('Result', result)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
     else:
         print('图像高不一致！！！！')
-
     return result
 
 
@@ -211,11 +179,11 @@ def cal_volume_change(path_base, path_target):
 
 def main():
     # 指定颜色映射两端对应的最小和最大高程值
-    elevation_min = -100  # 指定最小高程值
-    elevation_max = 50  # 指定最大高程值
+    # elevation_min = elevation_min  # 指定最小高程值
+    # elevation_max = 50  # 指定最大高程值
 
-    path_base = r"E:\Users\Moyear\Desktop\3d\slopes\B1_0_20240102_A.ply"
-    path_target = r"E:\Users\Moyear\Desktop\3d\slopes\B1_4_20240102_A.ply"
+    path_base = r"E:\Users\Moyear\Desktop\3d\slopes\E3_0_20240109_B.ply"
+    path_target = r"E:\Users\Moyear\Desktop\3d\slopes\E3_4_20240109_B.ply"
 
     dem_diff = cal_volume_change(path_base, path_target)
     # 将dem图像进行旋转旋转90度，变成纵向
@@ -243,8 +211,8 @@ def main():
     # plt.imshow(dem_diff, cmap='terrain')  # 使用terrain颜色映射
     plt.colorbar(label='Elevation (m)')
     plt.title('Digital Elevation Model')
-    plt.xlabel('X Coordinate')
-    plt.ylabel('Y Coordinate')
+    plt.xlabel('Width')
+    plt.ylabel('Height')
     plt.show()
 
     # # 将DEM差异保存到文件，这里以.npy格式保存，也可以选择其他格式
@@ -291,17 +259,97 @@ def fractal_dimension(Z, threshold=0.9):
     return -coeffs[0]
 
 
+def read_slope_elevation():
+    ply_path = r"E:\Users\Moyear\Desktop\3d\slopes\B2_4_20240109_A.ply"
+
+    # 加载点云数据
+    pcd = o3d.io.read_point_cloud(ply_path)
+    points = np.asarray(pcd.points)
+
+    # 动态获取y值的范围，y的范围大概在-800到800之间
+    y_min, y_max = points[:, 1].min(), points[:, 1].max()
+
+    print(y_min, y_max)
+
+    # 创建y值的数组，以确保覆盖所有可能的y值
+    y_step = 10  # 可以根据需要调整步长
+    y_bins = np.arange(y_min, y_max + y_step, y_step)
+    min_z_values = np.full(y_bins.shape, np.nan)  # 初始化最小高程值数组
+
+    # 根据y值分组并找到每组的最低z值
+    for i, y in enumerate(y_bins):
+        z_values_at_y = points[(points[:, 1] >= y) & (points[:, 1] < y + y_step), 2]
+        if z_values_at_y.size > 0:
+            min_z_values[i] = np.min(z_values_at_y)
+
+    # 用前一个有效值填充NaN值
+    valid_min_z = np.where(np.isnan(min_z_values),
+                           np.interp(y_bins, y_bins[~np.isnan(min_z_values)], min_z_values[~np.isnan(min_z_values)]),
+                           min_z_values)
+
+    y_plot = y_bins - y_min
+    x_plot = valid_min_z
+
+    print(x_plot.size)
+
+    # 绘制曲线
+    plt.figure(figsize=(10, 5))
+    plt.plot(y_plot, x_plot, label='Minimum Elevation')
+    plt.xlabel('Distance from Top of Slope (y)')
+    plt.ylabel('Minimum Elevation (z)')
+    plt.title('Minimum Elevation Profile Along Slope After Erosion')
+    plt.legend()
+    plt.show()
+
+
+
+def run_all_slopes():
+    # dir_plys = r"E:\Users\Moyear\Desktop\3d\slopes"
+
+    slope_names = ['A0',
+                   'B1', 'B2', 'B3',
+                   'C1', 'C2', 'C3',
+                   'D1', 'D2', 'D3',
+                   'E1', 'E2', 'E3']
+
+    # slope_name = 'D1'
+
+    for slope_name in slope_names:
+        print("========================", slope_name, "========================")
+        # 坡面的各个阶段的地形
+        file_paths_list = get_slopes_ply_by_name(slope_name)
+
+        # 获取侵蚀DEM
+        slopes_erosion = get_detailed_slope_erosion_image(file_paths_list)
+
+        # 使用opencv显示图像
+        slopes_erosion_bgr = cv2.cvtColor(slopes_erosion, cv2.COLOR_RGB2BGR)
+
+        # # 使用OpenCV显示图像
+        # cv2.imshow(slope_name, slopes_erosion_bgr)
+        # cv2.waitKey(0)
+
+        out_path = './outputs/erosion_{0}.jpg'.format(slope_name)
+        # 将图像保存到文件
+        cv2.imwrite(out_path, slopes_erosion_bgr)
+        print(slope_name, "坡面侵蚀图像保存成功到", out_path)
+
+
 if __name__ == "__main__":
     # main()
-    # get_all_slope_image()
 
-    path_base = r"E:\Users\Moyear\Desktop\3d\slopes\B1_0_20240102_A.ply"
-    path_target = r"E:\Users\Moyear\Desktop\3d\slopes\B1_4_20240102_A.ply"
+    run_all_slopes()
 
-    dem_diff = cal_volume_change(path_base, path_target)
+    # read_slope_elevation()
 
-    # 这里假设高程差异的最大值是阈值
-    fd = fractal_dimension(dem_diff, threshold=1)
+    # path_base = r"E:\Users\Moyear\Desktop\3d\slopes\B1_0_20240102_A.ply"
+    # path_target = r"E:\Users\Moyear\Desktop\3d\slopes\B1_4_20240102_A.ply"
+    #
+    # dem_diff = cal_volume_change(path_base, path_target)
+    #
 
-    print(f"分形维数: {fd}")
+    # # 这里假设高程差异的最大值是阈值
+    # fd = fractal_dimension(dem_diff, threshold=1)
+    #
+    # print(f"分形维数: {fd}")
 
