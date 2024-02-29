@@ -35,13 +35,3 @@ def fractal_dimension(Z, threshold=0.9):
     # Linear regression
     coeffs = linregress(np.log(sizes), np.log(counts))
     return -coeffs[0]
-
-
-# 假设dem_diff是一个二维高程差异数组
-# dem_diff = ...
-
-# 计算分形维数，需要选择一个适当的阈值
-# 这里假设高程差异的最大值是阈值
-fd = fractal_dimension(dem_diff, threshold=dem_diff.max())
-
-print(f"分形维数: {fd}")
